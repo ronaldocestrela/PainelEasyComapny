@@ -1,0 +1,310 @@
+/* Dashboard Styles */
+.dashboard-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filter-section {
+    display: flex;
+    gap: 20px;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.filter-group select {
+    min-width: 120px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.tools-section {
+    display: flex;
+    gap: 10px;
+}
+
+.tools-section .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+/* Commission Card */
+.commission-card {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%);
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+    overflow: hidden;
+}
+
+.commission-card .card-body {
+    padding: 30px;
+    position: relative;
+}
+
+.commission-card .card-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.commission-value {
+    font-size: 48px;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Funnel Card */
+.funnel-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.funnel-container {
+    position: relative;
+    padding: 20px 0;
+}
+
+.funnel-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    margin: 8px 20px;
+    position: relative;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%);
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.funnel-section.cadastros {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    margin-right: 40px;
+}
+
+.funnel-section.ftds {
+    background: linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%);
+    margin-right: 60px;
+}
+
+.funnel-section.cpa-qual {
+    background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+    margin-right: 80px;
+    color: white;
+}
+
+.funnel-label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.funnel-value {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* Metrics Cards */
+.metrics-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: 100%;
+}
+
+.metrics-card .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.total-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1e40af;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.metrics-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.metric-item {
+    display: grid;
+    grid-template-columns: 80px 1fr 80px;
+    gap: 15px;
+    align-items: center;
+}
+
+.metric-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.metric-bar {
+    height: 24px;
+    background-color: #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.metric-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6 0%, #1e40af 100%);
+    border-radius: 12px;
+    transition: width 0.3s ease;
+}
+
+.cpa-bar {
+    background-color: #fde2e8;
+}
+
+.cpa-progress {
+    background: linear-gradient(90deg, #f43f5e 0%, #be185d 100%);
+}
+
+.metric-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    text-align: right;
+}
+
+.disclaimer {
+    font-size: 12px;
+    color: #64748b;
+    font-style: italic;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f1f5f9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+    }
+    
+    .filter-section {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .tools-section {
+        justify-content: center;
+    }
+    
+    .commission-value {
+        font-size: 36px;
+    }
+    
+    .funnel-section {
+        margin-right: 10px !important;
+        font-size: 14px;
+    }
+    
+    .funnel-value {
+        font-size: 18px;
+    }
+    
+    .total-value {
+        font-size: 28px;
+    }
+    
+    .metric-item {
+        grid-template-columns: 60px 1fr 60px;
+        gap: 10px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .dashboard-container {
+        background-color: #1e293b;
+    }
+    
+    .dashboard-header {
+        background-color: #334155;
+        color: white;
+    }
+    
+    .metrics-card {
+        background-color: #334155;
+        color: white;
+    }
+    
+    .filter-group select {
+        background-color: #475569;
+        color: white;
+        border-color: #64748b;
+    }
+}
+
+/* Animation effects */
+.metric-progress {
+    animation: slideIn 1s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        width: 0;
+    }
+    to {
+        width: var(--final-width);
+    }
+}
+
+.commission-card {
+    transition: transform 0.2s ease;
+}
+
+.commission-card:hover {
+    transform: translateY(-2px);
+}
+
+.metrics-card {
+    transition: transform 0.2s ease;
+}
+
+.metrics-card:hover {
+    transform: translateY(-2px);
+}

@@ -1,0 +1,321 @@
+@page "/acompanhamento"
+@rendermode InteractiveServer
+
+<div class="acompanhamento-container">
+    <div class="page-header">
+        <h2>Acompanhamento Detalhado</h2>
+        <p class="text-muted">Relatório completo de performance das campanhas</p>
+    </div>
+
+    <div class="filters-section">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="filter-group">
+                    <label class="form-label">Período</label>
+                    <select class="form-select">
+                        <option>Últimos 7 dias</option>
+                        <option>Últimos 30 dias</option>
+                        <option>Este mês</option>
+                        <option>Personalizado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="filter-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-select">
+                        <option>Todas</option>
+                        <option>Ativas</option>
+                        <option>Pausadas</option>
+                        <option>Finalizadas</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="filter-group">
+                    <label class="form-label">Origem</label>
+                    <select class="form-select">
+                        <option>Todas</option>
+                        <option>Telegram</option>
+                        <option>Instagram</option>
+                        <option>Bilhete</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-primary me-2">
+                    <i class="bi bi-search"></i> Filtrar
+                </button>
+                <button class="btn btn-outline-secondary">
+                    <i class="bi bi-download"></i> Exportar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-section">
+        <div class="table-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="table-info">
+                    <span class="badge bg-secondary">@Campanhas.Count campanhas</span>
+                    <span class="text-muted ms-2">Total de clicks: @Campanhas.Sum(c => c.Clicks).ToString("N0")</span>
+                </div>
+                <div class="table-actions">
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="viewMode" id="tableView" checked>
+                        <label class="btn btn-outline-primary" for="tableView">
+                            <i class="bi bi-table"></i>
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="viewMode" id="cardView">
+                        <label class="btn btn-outline-primary" for="cardView">
+                            <i class="bi bi-grid"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">
+                            <div class="d-flex align-items-center">
+                                Campanha
+                                <i class="bi bi-arrow-up-down ms-1"></i>
+                            </div>
+                        </th>
+                        <th scope="col">
+                            <div class="d-flex align-items-center">
+                                Clicks
+                                <i class="bi bi-arrow-up-down ms-1"></i>
+                            </div>
+                        </th>
+                        <th scope="col">
+                            <div class="d-flex align-items-center">
+                                CPA
+                                <i class="bi bi-arrow-up-down ms-1"></i>
+                            </div>
+                        </th>
+                        <th scope="col">
+                            <div class="d-flex align-items-center">
+                                FTD
+                                <i class="bi bi-arrow-up-down ms-1"></i>
+                            </div>
+                        </th>
+                        <th scope="col">Taxa Conversão</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var campanha in Campanhas)
+                    {
+                        <tr class="@(campanha.Status == "Ativa" ? "table-success-light" : campanha.Status == "Pausada" ? "table-warning-light" : "")">
+                            <td>
+                                <div class="campanha-info">
+                                    <div class="campanha-name">@campanha.Nome</div>
+                                    <small class="text-muted">@campanha.Origem</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="metric-cell">
+                                    <strong>@campanha.Clicks.ToString("N0")</strong>
+                                    <div class="metric-trend">
+                                        @if (campanha.TendenciaClicks > 0)
+                                        {
+                                            <span class="text-success">
+                                                <i class="bi bi-arrow-up"></i> @campanha.TendenciaClicks.ToString("P1")
+                                            </span>
+                                        }
+                                        else if (campanha.TendenciaClicks < 0)
+                                        {
+                                            <span class="text-danger">
+                                                <i class="bi bi-arrow-down"></i> @Math.Abs(campanha.TendenciaClicks).ToString("P1")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                <i class="bi bi-dash"></i> 0%
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="metric-cell">
+                                    <strong>R$ @campanha.CPA.ToString("N2")</strong>
+                                    <small class="text-muted d-block">@campanha.QtdCPA conversões</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="metric-cell">
+                                    <strong>@campanha.FTD</strong>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar bg-success" style="width: @(campanha.FTD > 0 ? (campanha.FTD / 10.0 * 100) : 0)%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge @(campanha.TaxaConversao >= 5 ? "bg-success" : campanha.TaxaConversao >= 2 ? "bg-warning" : "bg-danger")">
+                                    @campanha.TaxaConversao.ToString("F2")%
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge @GetStatusBadgeClass(campanha.Status)">
+                                    @campanha.Status
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="Visualizar">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" title="Pausar/Ativar">
+                                        <i class="bi bi-@(campanha.Status == "Ativa" ? "pause" : "play")"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-footer">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="table-summary">
+                    <small class="text-muted">
+                        Mostrando @Campanhas.Count de @Campanhas.Count campanhas
+                    </small>
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled">
+                            <span class="page-link">Anterior</span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link">1</span>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Próximo</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<CampanhaDetalhada> Campanhas = new()
+    {
+        new CampanhaDetalhada 
+        { 
+            Nome = "Campanha Bilhete Premium", 
+            Origem = "Bilhete", 
+            Clicks = 1250, 
+            CPA = 186.50m, 
+            QtdCPA = 8, 
+            FTD = 5, 
+            Status = "Ativa",
+            TendenciaClicks = 0.15m,
+            TaxaConversao = 4.2m
+        },
+        new CampanhaDetalhada 
+        { 
+            Nome = "Telegram Promoção", 
+            Origem = "Telegram", 
+            Clicks = 980, 
+            CPA = 132.00m, 
+            QtdCPA = 6, 
+            FTD = 4, 
+            Status = "Ativa",
+            TendenciaClicks = 0.08m,
+            TaxaConversao = 3.8m
+        },
+        new CampanhaDetalhada 
+        { 
+            Nome = "Cadastro Simplificado", 
+            Origem = "Cadastro", 
+            Clicks = 450, 
+            CPA = 16.00m, 
+            QtdCPA = 2, 
+            FTD = 1, 
+            Status = "Pausada",
+            TendenciaClicks = -0.05m,
+            TaxaConversao = 1.8m
+        },
+        new CampanhaDetalhada 
+        { 
+            Nome = "Instagram Stories", 
+            Origem = "Instagram", 
+            Clicks = 320, 
+            CPA = 0.00m, 
+            QtdCPA = 0, 
+            FTD = 0, 
+            Status = "Finalizada",
+            TendenciaClicks = -0.12m,
+            TaxaConversao = 0.0m
+        },
+        new CampanhaDetalhada 
+        { 
+            Nome = "Bilhete Express", 
+            Origem = "Bilhete", 
+            Clicks = 1850, 
+            CPA = 245.80m, 
+            QtdCPA = 12, 
+            FTD = 8, 
+            Status = "Ativa",
+            TendenciaClicks = 0.22m,
+            TaxaConversao = 6.1m
+        },
+        new CampanhaDetalhada 
+        { 
+            Nome = "Telegram VIP", 
+            Origem = "Telegram", 
+            Clicks = 720, 
+            CPA = 89.40m, 
+            QtdCPA = 4, 
+            FTD = 3, 
+            Status = "Ativa",
+            TendenciaClicks = 0.11m,
+            TaxaConversao = 4.9m
+        }
+    };
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Ativa" => "bg-success",
+            "Pausada" => "bg-warning",
+            "Finalizada" => "bg-secondary",
+            _ => "bg-primary"
+        };
+    }
+
+    public class CampanhaDetalhada
+    {
+        public string Nome { get; set; } = string.Empty;
+        public string Origem { get; set; } = string.Empty;
+        public int Clicks { get; set; }
+        public decimal CPA { get; set; }
+        public int QtdCPA { get; set; }
+        public int FTD { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public decimal TendenciaClicks { get; set; }
+        public decimal TaxaConversao { get; set; }
+    }
+}

@@ -1,0 +1,155 @@
+@page "/"
+@page "/dashboard"
+@rendermode InteractiveServer
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="filter-section">
+            <div class="filter-group">
+                <label>Data</label>
+                <select class="form-select">
+                    <option>Todos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Conta</label>
+                <select class="form-select">
+                    <option>Todos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Campanha</label>
+                <select class="form-select">
+                    <option>Todos</option>
+                </select>
+            </div>
+        </div>
+        @* <div class="tools-section">
+            <button class="btn btn-outline-secondary">
+                <i class="bi bi-table"></i> Tabela
+            </button>
+            <button class="btn btn-outline-secondary">
+                <i class="bi bi-phone"></i> Mobile
+            </button>
+            <button class="btn btn-outline-secondary">
+                <i class="bi bi-bar-chart"></i> Resultado Analítico
+            </button>
+        </div> *@
+    </div>
+
+    <div class="dashboard-content">
+        <div class="row">
+            <!-- Comissão Total Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card commission-card">
+                    <div class="card-body">
+                        <h5 class="card-title text-white">Comissão Total</h5>
+                        <h2 class="commission-value text-white">R$ @ComissaoTotal.ToString("N2")</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Funil de Conversão -->
+            <div class="col-md-6 mb-4">
+                <div class="card funnel-card">
+                    <div class="card-body">
+                        <div class="funnel-container">
+                            <div class="funnel-section cadastros">
+                                <span class="funnel-label">Cadastros</span>
+                                <span class="funnel-value">@Cadastros</span>
+                            </div>
+                            <div class="funnel-section ftds">
+                                <span class="funnel-label">FTD's</span>
+                                <span class="funnel-value">@FTDs</span>
+                            </div>
+                            <div class="funnel-section cpa-qual">
+                                <span class="funnel-label">CPA Qual.</span>
+                                <span class="funnel-value">@CPAQual</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- RVS por Campanha -->
+            <div class="col-md-6 mb-4">
+                <div class="card metrics-card">
+                    <div class="card-body">
+                        <h5 class="card-title">RVS por Campanha</h5>
+                        <div class="total-value">R$ @RVSTotal</div>
+                        <div class="metrics-list">
+                            @foreach (var campanha in CampanhasRVS)
+                            {
+                                <div class="metric-item">
+                                    <span class="metric-label">@campanha.Nome</span>
+                                    <div class="metric-bar">
+                                        <div class="metric-progress" style="width: @(campanha.Valor / RVSTotal * 100)%"></div>
+                                    </div>
+                                    <span class="metric-value">R$ @campanha.Valor</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="disclaimer">
+                            * O RVS é uma previsão de ganhos; o valor final é fechado no final do mês.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CPA por Campanha -->
+            <div class="col-md-6 mb-4">
+                <div class="card metrics-card">
+                    <div class="card-body">
+                        <h5 class="card-title">CPA por Campanha</h5>
+                        <div class="total-value">R$ @CPATotal.ToString("N0")</div>
+                        <div class="metrics-list">
+                            @foreach (var campanha in CampanhasCPA)
+                            {
+                                <div class="metric-item">
+                                    <span class="metric-label">@campanha.Nome</span>
+                                    <div class="metric-bar cpa-bar">
+                                        <div class="metric-progress cpa-progress" style="width: @(campanha.Valor / CPATotal * 100)%"></div>
+                                    </div>
+                                    <span class="metric-value">R$ @campanha.Valor.ToString("N0")</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private decimal ComissaoTotal = 3534.34m;
+    private int Cadastros = 50;
+    private int FTDs = 20;
+    private int CPAQual = 16;
+    private int RVSTotal = 334;
+    private decimal CPATotal = 3200;
+
+    private List<CampanhaMetrica> CampanhasRVS = new()
+    {
+        new CampanhaMetrica { Nome = "Bilhete", Valor = 186 },
+        new CampanhaMetrica { Nome = "Telegram", Valor = 132 },
+        new CampanhaMetrica { Nome = "Cadastro", Valor = 16 },
+        new CampanhaMetrica { Nome = "Instagram", Valor = 0 }
+    };
+
+    private List<CampanhaMetrica> CampanhasCPA = new()
+    {
+        new CampanhaMetrica { Nome = "Bilhete", Valor = 1600 },
+        new CampanhaMetrica { Nome = "Telegram", Valor = 1000 },
+        new CampanhaMetrica { Nome = "Cadastro", Valor = 600 },
+        new CampanhaMetrica { Nome = "Instagram", Valor = 0 }
+    };
+
+    public class CampanhaMetrica
+    {
+        public string Nome { get; set; } = string.Empty;
+        public decimal Valor { get; set; }
+    }
+}

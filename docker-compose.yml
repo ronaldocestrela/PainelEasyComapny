@@ -1,0 +1,28 @@
+services:
+  painel-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: painel-acompanhamento
+    ports:
+      - "5798:5798"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5798
+    restart: unless-stopped
+    networks:
+      - painel-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5798/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  painel-network:
+    driver: bridge
+
+volumes:
+  painel-data:
+    driver: local
