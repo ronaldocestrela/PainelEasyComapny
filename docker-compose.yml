@@ -18,6 +18,21 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+  
+  sqlserver-painel:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-painel
+    ports:
+      - "8743:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Senh@D0Db2025!"
+      TZ: America/Sao_Paulo
+    volumes:
+      - sqlserver_data_painel:/var/opt/mssql
+    networks:
+      - painel-network
+    restart: always
 
 networks:
   painel-network:
@@ -25,4 +40,6 @@ networks:
 
 volumes:
   painel-data:
+    driver: local
+  sqlserver_data_painel:
     driver: local
