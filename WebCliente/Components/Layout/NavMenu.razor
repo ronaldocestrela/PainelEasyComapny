@@ -1,4 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@rendermode InteractiveServer
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Painel de Acompanhamento</a>
     </div>
@@ -10,15 +12,32 @@
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-bar-chart-fill" aria-hidden="true"></span> Dashboard
+                <span class="bi bi-columns-nav-menu" aria-hidden="true"></span> Dashboard
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
+        @* <div class="nav-item px-3">
             <NavLink class="nav-link" href="acompanhamento">
-                <span class="bi bi-table" aria-hidden="true"></span> Acompanhamento
+                <span class="bi bi-clipboard-data-nav-menu" aria-hidden="true"></span> Acompanhamento
             </NavLink>
-        </div>
+        </div> *@
+
+        @if (!isAuthenticated)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-box-arrow-in-right-nav-menu" aria-hidden="true"></span> Login
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <a class="nav-link" href="#" @onclick="HandleLogout" @onclick:preventDefault>
+                    <span class="bi bi-box-arrow-left-nav-menu" aria-hidden="true"></span> Logout
+                </a>
+            </div>
+        }
 
         @* <div class="nav-item px-3">
             <NavLink class="nav-link" href="home">
@@ -39,4 +58,45 @@
         </div> *@
     </nav>
 </div>
+
+@code {
+    [Inject]
+    private IAuthService? AuthService { get; set; }
+
+    [Inject]
+    private NavigationManager? Navigation { get; set; }
+
+    private bool isAuthenticated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Não fazer nada aqui - esperar pelo OnAfterRenderAsync
+        await Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && AuthService != null)
+        {
+            // Inicializar o AuthService após renderização completa
+            await AuthService.InitializeAsync();
+            
+            // Atualizar o estado baseado no token recuperado
+            isAuthenticated = AuthService.IsAuthenticated;
+            
+            @* Console.WriteLine($"NavMenu - AuthService.IsAuthenticated: {AuthService.IsAuthenticated}, Token: {(string.IsNullOrEmpty(AuthService.Token) ? "vazio" : "presente")}"); *@
+            
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleLogout()
+    {
+        if (AuthService != null)
+        {
+            await AuthService.LogoutAsync();
+            Navigation?.NavigateTo("/login", forceLoad: true);
+        }
+    }
+}
 

@@ -1,0 +1,258 @@
+@page "/login"
+@rendermode InteractiveServer
+@using WebCliente.Models
+@using WebCliente.Services
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+
+<PageTitle>Login - EasyCompany</PageTitle>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Login</h2>
+            <p>Acesse sua conta</p>
+        </div>
+
+        <EditForm Model="@loginRequest" OnValidSubmit="@HandleLogin" FormName="LoginForm">
+            <DataAnnotationsValidator />
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <InputText id="email" class="form-control" @bind-Value="loginRequest.Email" placeholder="Digite seu email" />
+                <ValidationMessage For="@(() => loginRequest.Email)" class="text-danger" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <InputText id="password" type="password" class="form-control" @bind-Value="loginRequest.Password" placeholder="Digite sua senha" />
+                <ValidationMessage For="@(() => loginRequest.Password)" class="text-danger" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @errorMessage
+                </div>
+            }
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-login" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span>Entrando...</span>
+                    }
+                    else
+                    {
+                        <span>Entrar</span>
+                    }
+                </button>
+            </div>
+        </EditForm>
+
+        <div class="login-footer">
+            <p>Para teste, use:</p>
+            <small>Email: admin@admin.com</small><br>
+            <small>Senha: Hadouken@69</small>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+    }
+
+    .login-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .login-header h2 {
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .login-header p {
+        color: #666;
+        margin: 0;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-login:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-login:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .login-footer {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e1e5e9;
+    }
+
+    .login-footer p {
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-footer small {
+        color: #888;
+        font-size: 0.85rem;
+    }
+
+    .alert {
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+    }
+</style>
+
+@code {
+    [SupplyParameterFromForm]
+    private LoginRequest loginRequest { get; set; } = new();
+
+    private bool isLoading = false;
+    private string errorMessage = string.Empty;
+    private bool componentRendered = false;
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = string.Empty;
+            StateHasChanged();
+
+            var result = await AuthService.LoginAsync(loginRequest);
+
+            if (result != null)
+            {
+                // Aguardar um pouco para garantir que o token será salvo
+                await Task.Delay(500);
+                
+                // Salvar o token no localStorage
+                if (componentRendered)
+                {
+                    await AuthService.SaveTokenAfterRenderAsync();
+                }
+                
+                // Login bem-sucedido - redirecionar
+                Navigation.NavigateTo("/", forceLoad: true);
+            }
+            else
+            {
+                errorMessage = "Email ou senha inválidos. Verifique suas credenciais e tente novamente.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Erro ao tentar fazer login. Tente novamente mais tarde.";
+            Console.WriteLine($"Erro no login: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            componentRendered = true;
+            
+            // Inicializar o serviço de autenticação após o primeiro render
+            await AuthService.InitializeAsync();
+            
+            // Verificar se já está autenticado após inicialização
+            if (AuthService.IsAuthenticated)
+            {
+                Navigation.NavigateTo("/");
+                return;
+            }
+            
+            StateHasChanged();
+        }
+    }
+}

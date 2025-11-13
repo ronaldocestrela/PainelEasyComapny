@@ -1,7 +1,14 @@
 @page "/acompanhamento"
 @rendermode InteractiveServer
+@using WebCliente.Services
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
 
-<div class="acompanhamento-container">
+@if (!isLoading)
+{
+    @if (isAuthenticated)
+    {
+        <div class="acompanhamento-container">
     <div class="page-header">
         <h2>Acompanhamento Detalhado</h2>
         <p class="text-muted">Relatório completo de performance das campanhas</p>
@@ -106,7 +113,7 @@
                         </th>
                         <th scope="col">Taxa Conversão</th>
                         <th scope="col">Status</th>
-                        <th scope="col">Ações</th>
+                        @* <th scope="col">Ações</th> *@
                     </tr>
                 </thead>
                 <tbody>
@@ -168,7 +175,7 @@
                                     @campanha.Status
                                 </span>
                             </td>
-                            <td>
+                            @* <td>
                                 <div class="btn-group btn-group-sm">
                                     <button class="btn btn-outline-primary" title="Visualizar">
                                         <i class="bi bi-eye"></i>
@@ -180,7 +187,7 @@
                                         <i class="bi bi-@(campanha.Status == "Ativa" ? "pause" : "play")"></i>
                                     </button>
                                 </div>
-                            </td>
+                            </td> *@
                         </tr>
                     }
                 </tbody>
@@ -318,4 +325,45 @@
         public decimal TendenciaClicks { get; set; }
         public decimal TaxaConversao { get; set; }
     }
+
+    private bool isAuthenticated = false;
+    private bool isLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && AuthService != null)
+        {
+            // Inicializar o AuthService
+            await AuthService.InitializeAsync();
+            
+            // Verificar autenticação
+            isAuthenticated = AuthService.IsAuthenticated;
+            isLoading = false;
+            
+            // Se não estiver autenticado, redirecionar para login
+            if (!isAuthenticated)
+            {
+                Navigation.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+            
+            StateHasChanged();
+        }
+    }
+}
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            <h4>Acesso Negado</h4>
+            <p>Você precisa estar autenticado para acessar esta página.</p>
+            <a href="/login" class="btn btn-primary">Ir para Login</a>
+        </div>
+    }
+}
+else
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Carregando...</span>
+    </div>
 }

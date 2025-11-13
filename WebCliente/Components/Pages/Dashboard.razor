@@ -1,8 +1,15 @@
 @page "/"
 @page "/dashboard"
 @rendermode InteractiveServer
+@using WebCliente.Services
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
 
-<div class="dashboard-container">
+@if (!isLoading)
+{
+    @if (isAuthenticated)
+    {
+        <div class="dashboard-container">
     <div class="dashboard-header">
         <div class="filter-section">
             <div class="filter-group">
@@ -122,6 +129,22 @@
         </div>
     </div>
 </div>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            <h4>Acesso Negado</h4>
+            <p>Você precisa estar autenticado para acessar esta página.</p>
+            <a href="/login" class="btn btn-primary">Ir para Login</a>
+        </div>
+    }
+}
+else
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Carregando...</span>
+    </div>
+}
 
 @code {
     private decimal ComissaoTotal = 3534.34m;
@@ -130,6 +153,30 @@
     private int CPAQual = 16;
     private int RVSTotal = 334;
     private decimal CPATotal = 3200;
+    private bool isAuthenticated = false;
+    private bool isLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && AuthService != null)
+        {
+            // Inicializar o AuthService
+            await AuthService.InitializeAsync();
+            
+            // Verificar autenticação
+            isAuthenticated = AuthService.IsAuthenticated;
+            isLoading = false;
+            
+            // Se não estiver autenticado, redirecionar para login
+            if (!isAuthenticated)
+            {
+                Navigation.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+            
+            StateHasChanged();
+        }
+    }
 
     private List<CampanhaMetrica> CampanhasRVS = new()
     {

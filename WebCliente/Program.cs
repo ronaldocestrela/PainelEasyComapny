@@ -1,10 +1,17 @@
 using WebCliente.Components;
+using WebCliente.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Add HttpClient
+builder.Services.AddHttpClient();
+
+// Add authentication service
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Add health checks
 builder.Services.AddHealthChecks();
