@@ -144,7 +144,7 @@
 .metrics-card .card-title {
     font-size: 18px;
     font-weight: 600;
-    color: #333;
+    color: #f8f6f6;
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 2px solid #f1f5f9;
@@ -153,7 +153,7 @@
 .total-value {
     font-size: 36px;
     font-weight: 700;
-    color: #1e40af;
+    color: #cfd6ee;
     margin-bottom: 25px;
     text-align: center;
 }
