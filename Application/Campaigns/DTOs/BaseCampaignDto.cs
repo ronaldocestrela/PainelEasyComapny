@@ -1,14 +1,9 @@
-namespace Core.Entities;
+namespace Application.Campaigns.DTOs;
 
-public class Campaign : BaseEntity
+public class BaseCampaignDto
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-
-    // Relationships
     public string BookmakerId { get; set; } = string.Empty;
-    public Bookmaker Bookmaker { get; set; } = null!;
-
     public string? ProjectId { get; set; }
-    public Project? Project { get; set; }
 }

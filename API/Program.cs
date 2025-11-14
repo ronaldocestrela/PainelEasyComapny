@@ -1,8 +1,11 @@
 using API.Middleware;
 using Application.Bookmakers.Validators;
+using Application.Campaigns.Validators;
 using Application.Core;
 using Application.FakeEmail;
 using Application.Interfaces;
+using Application.Projects.Validators;
+using Application.Reports.Validators;
 using Core.Entities;
 using FluentValidation;
 using Infrastructure;
@@ -22,6 +25,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateBookmakerValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateCampaignValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProjectValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateReportValidator>();
 builder.Services.AddTransient<ExceptionMiddleware>();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddSingleton<BahiaTimeZone>();

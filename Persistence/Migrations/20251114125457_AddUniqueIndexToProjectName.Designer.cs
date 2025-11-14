@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence;
 
@@ -11,9 +12,11 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251114125457_AddUniqueIndexToProjectName")]
+    partial class AddUniqueIndexToProjectName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -139,21 +142,16 @@ namespace Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Website")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Bookmaker_Name_Unique");
 
                     b.ToTable("Bookmakers");
                 });
@@ -172,16 +170,11 @@ namespace Persistence.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ProjectId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -189,11 +182,6 @@ namespace Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BookmakerId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("Name", "ProjectId")
-                        .HasDatabaseName("IX_Campaign_Name_ProjectId");
 
                     b.ToTable("Campaigns");
                 });
@@ -245,7 +233,6 @@ namespace Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Deposits")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Ftds")
@@ -259,43 +246,9 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Currency")
-                        .HasDatabaseName("IX_Report_Currency");
-
-                    b.HasIndex("ReportDate")
-                        .HasDatabaseName("IX_Report_ReportDate");
-
-                    b.HasIndex("CampaignId", "ReportDate")
-                        .HasDatabaseName("IX_Report_CampaignId_ReportDate");
+                    b.HasIndex("CampaignId");
 
                     b.ToTable("Reports");
-                });
-
-            modelBuilder.Entity("Core.Entities.UserProject", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProjectId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("UserId", "ProjectId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("UserId", "ProjectId")
-                        .IsUnique();
-
-                    b.ToTable("UserProjects");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -409,17 +362,10 @@ namespace Persistence.Migrations
                     b.HasOne("Core.Entities.Bookmaker", "Bookmaker")
                         .WithMany("Campaigns")
                         .HasForeignKey("BookmakerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Core.Entities.Project", "Project")
-                        .WithMany("Campaigns")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("Bookmaker");
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Core.Entities.Report", b =>
@@ -427,29 +373,10 @@ namespace Persistence.Migrations
                     b.HasOne("Core.Entities.Campaign", "Campaign")
                         .WithMany()
                         .HasForeignKey("CampaignId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Campaign");
-                });
-
-            modelBuilder.Entity("Core.Entities.UserProject", b =>
-                {
-                    b.HasOne("Core.Entities.Project", "Project")
-                        .WithMany("UserProjects")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.ApplicationUser", "User")
-                        .WithMany("UserProjects")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -503,21 +430,9 @@ namespace Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Core.Entities.ApplicationUser", b =>
-                {
-                    b.Navigation("UserProjects");
-                });
-
             modelBuilder.Entity("Core.Entities.Bookmaker", b =>
                 {
                     b.Navigation("Campaigns");
-                });
-
-            modelBuilder.Entity("Core.Entities.Project", b =>
-                {
-                    b.Navigation("Campaigns");
-
-                    b.Navigation("UserProjects");
                 });
 #pragma warning restore 612, 618
         }
