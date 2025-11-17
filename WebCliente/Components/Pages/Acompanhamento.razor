@@ -1,7 +1,9 @@
 @page "/acompanhamento"
 @rendermode InteractiveServer
 @using WebCliente.Services
+@using WebCliente.Models
 @inject IAuthService AuthService
+@inject IReportService ReportService
 @inject NavigationManager Navigation
 
 @if (!isLoading)
@@ -64,8 +66,8 @@
         <div class="table-header">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="table-info">
-                    <span class="badge bg-secondary">@Campanhas.Count campanhas</span>
-                    <span class="text-muted ms-2">Total de clicks: @Campanhas.Sum(c => c.Clicks).ToString("N0")</span>
+                    <span class="badge bg-secondary">@reports.Count relatórios</span>
+                    <span class="text-muted ms-2">Total de clicks: @reports.Sum(r => r.Clicks).ToString("N0")</span>
                 </div>
                 <div class="table-actions">
                     <div class="btn-group" role="group">
@@ -95,99 +97,78 @@
                         </th>
                         <th scope="col">
                             <div class="d-flex align-items-center">
+                                Casa de Apostas
+                                <i class="bi bi-arrow-up-down ms-1"></i>
+                            </div>
+                        </th>
+                        <th scope="col">
+                            <div class="d-flex align-items-center">
                                 Clicks
                                 <i class="bi bi-arrow-up-down ms-1"></i>
                             </div>
                         </th>
                         <th scope="col">
                             <div class="d-flex align-items-center">
-                                CPA
+                                FTDs
                                 <i class="bi bi-arrow-up-down ms-1"></i>
                             </div>
                         </th>
                         <th scope="col">
                             <div class="d-flex align-items-center">
-                                FTD
+                                Depósitos
                                 <i class="bi bi-arrow-up-down ms-1"></i>
                             </div>
                         </th>
-                        <th scope="col">Taxa Conversão</th>
-                        <th scope="col">Status</th>
+                        <th scope="col">
+                            <div class="d-flex align-items-center">
+                                Data
+                                <i class="bi bi-arrow-up-down ms-1"></i>
+                            </div>
+                        </th>
+                        <th scope="col">Projeto</th>
                         @* <th scope="col">Ações</th> *@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var campanha in Campanhas)
+                    @foreach (var report in reports)
                     {
-                        <tr class="@(campanha.Status == "Ativa" ? "table-success-light" : campanha.Status == "Pausada" ? "table-warning-light" : "")">
+                        <tr>
                             <td>
                                 <div class="campanha-info">
-                                    <div class="campanha-name">@campanha.Nome</div>
-                                    <small class="text-muted">@campanha.Origem</small>
+                                    <div class="campanha-name">@report.CampaignName</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="campanha-info">
+                                    <div class="campanha-name">@report.BookmakerName</div>
                                 </div>
                             </td>
                             <td>
                                 <div class="metric-cell">
-                                    <strong>@campanha.Clicks.ToString("N0")</strong>
-                                    <div class="metric-trend">
-                                        @if (campanha.TendenciaClicks > 0)
-                                        {
-                                            <span class="text-success">
-                                                <i class="bi bi-arrow-up"></i> @campanha.TendenciaClicks.ToString("P1")
-                                            </span>
-                                        }
-                                        else if (campanha.TendenciaClicks < 0)
-                                        {
-                                            <span class="text-danger">
-                                                <i class="bi bi-arrow-down"></i> @Math.Abs(campanha.TendenciaClicks).ToString("P1")
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">
-                                                <i class="bi bi-dash"></i> 0%
-                                            </span>
-                                        }
-                                    </div>
+                                    <strong>@report.Clicks.ToString("N0")</strong>
                                 </div>
                             </td>
                             <td>
                                 <div class="metric-cell">
-                                    <strong>R$ @campanha.CPA.ToString("N2")</strong>
-                                    <small class="text-muted d-block">@campanha.QtdCPA conversões</small>
+                                    <strong>@report.Ftds</strong>
                                 </div>
                             </td>
                             <td>
                                 <div class="metric-cell">
-                                    <strong>@campanha.FTD</strong>
-                                    <div class="progress mt-1" style="height: 4px;">
-                                        <div class="progress-bar bg-success" style="width: @(campanha.FTD > 0 ? (campanha.FTD / 10.0 * 100) : 0)%"></div>
-                                    </div>
+                                    <strong>R$ @report.Deposits.ToString("N2")</strong>
+                                    <small class="text-muted d-block">@GetCurrencyName(report.Currency)</small>
                                 </div>
                             </td>
                             <td>
-                                <span class="badge @(campanha.TaxaConversao >= 5 ? "bg-success" : campanha.TaxaConversao >= 2 ? "bg-warning" : "bg-danger")">
-                                    @campanha.TaxaConversao.ToString("F2")%
-                                </span>
+                                <div class="metric-cell">
+                                    <strong>@report.ReportDate.ToString("dd/MM/yyyy")</strong>
+                                </div>
                             </td>
                             <td>
-                                <span class="badge @GetStatusBadgeClass(campanha.Status)">
-                                    @campanha.Status
-                                </span>
-                            </td>
-                            @* <td>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" title="Visualizar">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-outline-secondary" title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger" title="Pausar/Ativar">
-                                        <i class="bi bi-@(campanha.Status == "Ativa" ? "pause" : "play")"></i>
-                                    </button>
+                                <div class="campanha-info">
+                                    <div class="campanha-name">@report.ProjectName</div>
                                 </div>
-                            </td> *@
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -198,25 +179,22 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div class="table-summary">
                     <small class="text-muted">
-                        Mostrando @Campanhas.Count de @Campanhas.Count campanhas
+                        Mostrando @reports.Count de @totalCount relatórios
                     </small>
                 </div>
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled">
-                            <span class="page-link">Anterior</span>
+                        <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                            <a class="page-link" @onclick="() => ChangePage(currentPage - 1)" href="#">Anterior</a>
                         </li>
-                        <li class="page-item active">
-                            <span class="page-link">1</span>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">2</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">3</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Próximo</a>
+                        @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                <a class="page-link" @onclick="() => ChangePage(i)" href="#">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                            <a class="page-link" @onclick="() => ChangePage(currentPage + 1)" href="#">Próximo</a>
                         </li>
                     </ul>
                 </nav>
@@ -224,133 +202,6 @@
         </div>
     </div>
 </div>
-
-@code {
-    private List<CampanhaDetalhada> Campanhas = new()
-    {
-        new CampanhaDetalhada 
-        { 
-            Nome = "Campanha Bilhete Premium", 
-            Origem = "Bilhete", 
-            Clicks = 1250, 
-            CPA = 186.50m, 
-            QtdCPA = 8, 
-            FTD = 5, 
-            Status = "Ativa",
-            TendenciaClicks = 0.15m,
-            TaxaConversao = 4.2m
-        },
-        new CampanhaDetalhada 
-        { 
-            Nome = "Telegram Promoção", 
-            Origem = "Telegram", 
-            Clicks = 980, 
-            CPA = 132.00m, 
-            QtdCPA = 6, 
-            FTD = 4, 
-            Status = "Ativa",
-            TendenciaClicks = 0.08m,
-            TaxaConversao = 3.8m
-        },
-        new CampanhaDetalhada 
-        { 
-            Nome = "Cadastro Simplificado", 
-            Origem = "Cadastro", 
-            Clicks = 450, 
-            CPA = 16.00m, 
-            QtdCPA = 2, 
-            FTD = 1, 
-            Status = "Pausada",
-            TendenciaClicks = -0.05m,
-            TaxaConversao = 1.8m
-        },
-        new CampanhaDetalhada 
-        { 
-            Nome = "Instagram Stories", 
-            Origem = "Instagram", 
-            Clicks = 320, 
-            CPA = 0.00m, 
-            QtdCPA = 0, 
-            FTD = 0, 
-            Status = "Finalizada",
-            TendenciaClicks = -0.12m,
-            TaxaConversao = 0.0m
-        },
-        new CampanhaDetalhada 
-        { 
-            Nome = "Bilhete Express", 
-            Origem = "Bilhete", 
-            Clicks = 1850, 
-            CPA = 245.80m, 
-            QtdCPA = 12, 
-            FTD = 8, 
-            Status = "Ativa",
-            TendenciaClicks = 0.22m,
-            TaxaConversao = 6.1m
-        },
-        new CampanhaDetalhada 
-        { 
-            Nome = "Telegram VIP", 
-            Origem = "Telegram", 
-            Clicks = 720, 
-            CPA = 89.40m, 
-            QtdCPA = 4, 
-            FTD = 3, 
-            Status = "Ativa",
-            TendenciaClicks = 0.11m,
-            TaxaConversao = 4.9m
-        }
-    };
-
-    private string GetStatusBadgeClass(string status)
-    {
-        return status switch
-        {
-            "Ativa" => "bg-success",
-            "Pausada" => "bg-warning",
-            "Finalizada" => "bg-secondary",
-            _ => "bg-primary"
-        };
-    }
-
-    public class CampanhaDetalhada
-    {
-        public string Nome { get; set; } = string.Empty;
-        public string Origem { get; set; } = string.Empty;
-        public int Clicks { get; set; }
-        public decimal CPA { get; set; }
-        public int QtdCPA { get; set; }
-        public int FTD { get; set; }
-        public string Status { get; set; } = string.Empty;
-        public decimal TendenciaClicks { get; set; }
-        public decimal TaxaConversao { get; set; }
-    }
-
-    private bool isAuthenticated = false;
-    private bool isLoading = true;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && AuthService != null)
-        {
-            // Inicializar o AuthService
-            await AuthService.InitializeAsync();
-            
-            // Verificar autenticação
-            isAuthenticated = AuthService.IsAuthenticated;
-            isLoading = false;
-            
-            // Se não estiver autenticado, redirecionar para login
-            if (!isAuthenticated)
-            {
-                Navigation.NavigateTo("/login", forceLoad: true);
-                return;
-            }
-            
-            StateHasChanged();
-        }
-    }
-}
     }
     else
     {
@@ -366,4 +217,88 @@ else
     <div class="spinner-border" role="status">
         <span class="visually-hidden">Carregando...</span>
     </div>
+}
+
+@code {
+    private bool isAuthenticated = false;
+    private bool isLoading = true;
+    private List<ReportListItem> reports = new();
+
+    // Paginação
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages = 1;
+    private int totalCount = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await CheckAuthentication();
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CheckAuthentication()
+    {
+        if (AuthService != null)
+        {
+            await AuthService.InitializeAsync();
+            isAuthenticated = AuthService.IsAuthenticated;
+
+            if (isAuthenticated)
+            {
+                await LoadReports();
+            }
+        }
+    }
+
+    private async Task LoadReports()
+    {
+        try
+        {
+            var reportsData = await ReportService.GetReportsListAsync(currentPage, pageSize);
+            if (reportsData != null)
+            {
+                reports = reportsData.Items;
+                totalPages = reportsData.TotalPages;
+                totalCount = reportsData.TotalCount;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar dados dos reports: {ex.Message}");
+        }
+    }
+
+    private async Task ChangePage(int page)
+    {
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        await LoadReports();
+        StateHasChanged();
+    }
+
+    private string GetCurrencyName(int currency)
+    {
+        return currency switch
+        {
+            1 => "USD",
+            2 => "BRL",
+            3 => "EUR",
+            _ => "Desconhecida"
+        };
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Ativa" => "bg-success",
+            "Pausada" => "bg-warning",
+            "Finalizada" => "bg-secondary",
+            _ => "bg-primary"
+        };
+    }
 }

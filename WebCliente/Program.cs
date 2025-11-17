@@ -7,11 +7,25 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add HttpClient
+// Configure HttpClient with base address
+builder.Services.AddHttpClient("ApiClient", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5150");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
+// Register HttpClient factory for services
 builder.Services.AddHttpClient();
 
 // Add authentication service
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Add API services
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IBookmakerService, BookmakerService>();
+builder.Services.AddScoped<ICampaignService, CampaignService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Add health checks
 builder.Services.AddHealthChecks();

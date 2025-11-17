@@ -19,6 +19,18 @@ public class ProjectsController : BaseApiController
         return await Mediator.Send(new ListAllProjectsQuery.Query());
     }
 
+    [HttpGet("{projectId}/users")]
+    public async Task<ActionResult<List<UserInProjectDto>>> ListUsersInProject(string projectId)
+    {
+        return HandleResult(await Mediator.Send(new ListUsersInProjectQuery.Query { ProjectId = projectId }));
+    }
+
+    [HttpGet("user/{userId}")]
+    public async Task<ActionResult<List<ProjectDto>>> ListUserProjects(string userId)
+    {
+        return HandleResult(await Mediator.Send(new ListUserProjectsQuery.Query { UserId = userId }));
+    }
+
     [HttpPost("add-user")]
     public async Task<ActionResult<string>> AddUserToProject(string userId, string projectId)
     {

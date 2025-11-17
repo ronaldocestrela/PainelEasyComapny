@@ -10,240 +10,198 @@ public class DbInitializer
 {
     public static async Task SeedData(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
     {
-        // Clean existing data to ensure clean state
-        if (context.UserProjects.Any())
+        // Seed Roles - only if no roles exist
+        if (!await context.Roles.AnyAsync())
         {
-            context.UserProjects.RemoveRange(context.UserProjects);
-            await context.SaveChangesAsync();
-        }
-
-        if (context.Reports.Any())
-        {
-            context.Reports.RemoveRange(context.Reports);
-            await context.SaveChangesAsync();
-        }
-
-        if (context.Campaigns.Any())
-        {
-            context.Campaigns.RemoveRange(context.Campaigns);
-            await context.SaveChangesAsync();
-        }
-
-        if (context.Projects.Any())
-        {
-            context.Projects.RemoveRange(context.Projects);
-            await context.SaveChangesAsync();
-        }
-
-        if (context.Bookmakers.Any())
-        {
-            context.Bookmakers.RemoveRange(context.Bookmakers);
-            await context.SaveChangesAsync();
-        }
-
-        // Remove existing users and roles
-        if (userManager.Users.Any())
-        {
-            foreach (var user in userManager.Users.ToList())
+            var roles = new List<ApplicationRole>
             {
-                await userManager.DeleteAsync(user);
-            }
-        }
+                new() { Name = "Admin" },
+                new() { Name = "Analyst" },
+                new() { Name = "Expert" }
+            };
 
-        if (context.Roles.Any())
-        {
-            foreach (var role in context.Roles.ToList())
-            {
-                await roleManager.DeleteAsync(role);
-            }
-        }
-
-        // Seed Roles
-        var roles = new List<ApplicationRole>
-        {
-            new() { Name = "Admin" },
-            new() { Name = "Analyst" },
-            new() { Name = "Expert" }
-        };
-
-        if (!context.Roles.Any())
-        {
             foreach (var role in roles)
             {
                 await roleManager.CreateAsync(role);
             }
         }
 
-        // Seed Users
-        var applicationUsers = new List<ApplicationUser>
+        // Seed Users - only if no users exist
+        if (!await userManager.Users.AnyAsync())
         {
-            new() {
-                FirstName = "Admin",
-                LastName = "Admin",
-                UserName = "admin@admin.com",
-                Email = "admin@admin.com",
-                EmailConfirmed = true,
-                PhoneNumberConfirmed = true
-            },
-            new() {
-                FirstName = "Analyst",
-                LastName = "ONE",
-                UserName = "analyst1@analyst.com",
-                Email = "analyst1@analyst.com",
-                EmailConfirmed = true,
-                PhoneNumberConfirmed = true
-            },
-            new() {
-                FirstName = "Analyst",
-                LastName = "TWO",
-                UserName = "analyst2@analyst.com",
-                Email = "analyst2@analyst.com",
-                EmailConfirmed = true,
-                PhoneNumberConfirmed = true
-            },
-            new() {
-                FirstName = "Analyst",
-                LastName = "THREE",
-                UserName = "analyst3@analyst.com",
-                Email = "analyst3@analyst.com",
-                EmailConfirmed = true,
-                PhoneNumberConfirmed = true
-            },
-            new() {
-                FirstName = "Expert 1",
-                LastName = "ONE",
-                UserName = "expert1@expert.com",
-                Email = "expert1@expert.com",
-                EmailConfirmed = true,
-                PhoneNumberConfirmed = true
-            },
-            new() {
-                FirstName = "Expert 2",
-                LastName = "TWO",
-                UserName = "expert2@expert.com",
-                Email = "expert2@expert.com",
-                EmailConfirmed = true,
-                PhoneNumberConfirmed = true
-            }
-        };
+            var applicationUsers = new List<ApplicationUser>
+            {
+                new() {
+                    FirstName = "Admin",
+                    LastName = "Admin",
+                    UserName = "admin@admin.com",
+                    Email = "admin@admin.com",
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true
+                },
+                new() {
+                    FirstName = "Analyst",
+                    LastName = "ONE",
+                    UserName = "analyst1@analyst.com",
+                    Email = "analyst1@analyst.com",
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true
+                },
+                new() {
+                    FirstName = "Analyst",
+                    LastName = "TWO",
+                    UserName = "analyst2@analyst.com",
+                    Email = "analyst2@analyst.com",
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true
+                },
+                new() {
+                    FirstName = "Analyst",
+                    LastName = "THREE",
+                    UserName = "analyst3@analyst.com",
+                    Email = "analyst3@analyst.com",
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true
+                },
+                new() {
+                    FirstName = "Expert 1",
+                    LastName = "ONE",
+                    UserName = "expert1@expert.com",
+                    Email = "expert1@expert.com",
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true
+                },
+                new() {
+                    FirstName = "Expert 2",
+                    LastName = "TWO",
+                    UserName = "expert2@expert.com",
+                    Email = "expert2@expert.com",
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true
+                }
+            };
 
-        if (!userManager.Users.Any())
-        {
             foreach (var user in applicationUsers)
             {
                 await userManager.CreateAsync(user, "Hadouken@69");
             }
-        }
 
-        // Assign roles to users
-        var adminUser = await userManager.FindByEmailAsync("admin@admin.com");
-        if (adminUser != null && !await userManager.IsInRoleAsync(adminUser, "Admin"))
-        {
-            await userManager.AddToRoleAsync(adminUser, "Admin");
-        }
-
-        var analyst1 = await userManager.FindByEmailAsync("analyst1@analyst.com");
-        if (analyst1 != null && !await userManager.IsInRoleAsync(analyst1, "Analyst"))
-        {
-            await userManager.AddToRoleAsync(analyst1, "Analyst");
-        }
-
-        var analyst2 = await userManager.FindByEmailAsync("analyst2@analyst.com");
-        if (analyst2 != null && !await userManager.IsInRoleAsync(analyst2, "Analyst"))
-        {
-            await userManager.AddToRoleAsync(analyst2, "Analyst");
-        }
-
-        var analyst3 = await userManager.FindByEmailAsync("analyst3@analyst.com");
-        if (analyst3 != null && !await userManager.IsInRoleAsync(analyst3, "Analyst"))
-        {
-            await userManager.AddToRoleAsync(analyst3, "Analyst");
-        }
-
-        var expert1 = await userManager.FindByEmailAsync("expert1@expert.com");
-        if (expert1 != null && !await userManager.IsInRoleAsync(expert1, "Expert"))
-        {
-            await userManager.AddToRoleAsync(expert1, "Expert");
-        }
-
-        var expert2 = await userManager.FindByEmailAsync("expert2@expert.com");
-        if (expert2 != null && !await userManager.IsInRoleAsync(expert2, "Expert"))
-        {
-            await userManager.AddToRoleAsync(expert2, "Expert");
-        }
-
-        // Seed Bookmakers
-        var bookmakerList = new List<Bookmaker>
-        {
-            new() {
-                Name = "Bet365",
-                Website = "https://www.bet365.com",
-                CreatedAt = DateTime.UtcNow
-            },
-            new() {
-                Name = "Betfair",
-                Website = "https://www.betfair.com",
-                CreatedAt = DateTime.UtcNow
-            },
-            new() {
-                Name = "William Hill",
-                Website = "https://www.williamhill.com",
-                CreatedAt = DateTime.UtcNow
-            },
-            new() {
-                Name = "Pinnacle",
-                Website = "https://www.pinnacle.com",
-                CreatedAt = DateTime.UtcNow
-            },
-            new() {
-                Name = "Betsson",
-                Website = "https://www.betsson.com",
-                CreatedAt = DateTime.UtcNow
+            // Assign roles to users
+            var adminUser = await userManager.FindByEmailAsync("admin@admin.com");
+            if (adminUser != null && !await userManager.IsInRoleAsync(adminUser, "Admin"))
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
             }
-        };
 
-        context.Bookmakers.AddRange(bookmakerList);
-        await context.SaveChangesAsync();
-
-        // Seed Projects
-        var projectList = new List<Project>
-        {
-            new() {
-                Name = "Futebol Brasileiro",
-                Description = "Campanhas para jogos do Campeonato Brasileiro",
-                CreatedAt = DateTime.UtcNow
-            },
-            new() {
-                Name = "Futebol Europeu",
-                Description = "Campanhas para ligas europeias principais",
-                CreatedAt = DateTime.UtcNow
-            },
-            new() {
-                Name = "Tênis ATP",
-                Description = "Campanhas para torneios ATP de tênis",
-                CreatedAt = DateTime.UtcNow
-            },
-            new() {
-                Name = "Basquete NBA",
-                Description = "Campanhas para jogos da NBA",
-                CreatedAt = DateTime.UtcNow
-            },
-            new() {
-                Name = "Futebol Copa do Mundo",
-                Description = "Campanhas especiais para Copa do Mundo 2026",
-                CreatedAt = DateTime.UtcNow
+            var analyst1 = await userManager.FindByEmailAsync("analyst1@analyst.com");
+            if (analyst1 != null && !await userManager.IsInRoleAsync(analyst1, "Analyst"))
+            {
+                await userManager.AddToRoleAsync(analyst1, "Analyst");
             }
-        };
 
-        context.Projects.AddRange(projectList);
-        await context.SaveChangesAsync();
+            var analyst2 = await userManager.FindByEmailAsync("analyst2@analyst.com");
+            if (analyst2 != null && !await userManager.IsInRoleAsync(analyst2, "Analyst"))
+            {
+                await userManager.AddToRoleAsync(analyst2, "Analyst");
+            }
+
+            var analyst3 = await userManager.FindByEmailAsync("analyst3@analyst.com");
+            if (analyst3 != null && !await userManager.IsInRoleAsync(analyst3, "Analyst"))
+            {
+                await userManager.AddToRoleAsync(analyst3, "Analyst");
+            }
+
+            var expert1 = await userManager.FindByEmailAsync("expert1@expert.com");
+            if (expert1 != null && !await userManager.IsInRoleAsync(expert1, "Expert"))
+            {
+                await userManager.AddToRoleAsync(expert1, "Expert");
+            }
+
+            var expert2 = await userManager.FindByEmailAsync("expert2@expert.com");
+            if (expert2 != null && !await userManager.IsInRoleAsync(expert2, "Expert"))
+            {
+                await userManager.AddToRoleAsync(expert2, "Expert");
+            }
+        }
+
+        // Seed Bookmakers - only if no bookmakers exist
+        if (!await context.Bookmakers.AnyAsync())
+        {
+            var bookmakerList = new List<Bookmaker>
+            {
+                new() {
+                    Name = "Bet365",
+                    Website = "https://www.bet365.com",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new() {
+                    Name = "Betfair",
+                    Website = "https://www.betfair.com",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new() {
+                    Name = "William Hill",
+                    Website = "https://www.williamhill.com",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new() {
+                    Name = "Pinnacle",
+                    Website = "https://www.pinnacle.com",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new() {
+                    Name = "Betsson",
+                    Website = "https://www.betsson.com",
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
+
+            context.Bookmakers.AddRange(bookmakerList);
+            await context.SaveChangesAsync();
+        }
+
+        // Seed Projects - only if no projects exist
+        if (!await context.Projects.AnyAsync())
+        {
+            var projectList = new List<Project>
+            {
+                new() {
+                    Name = "Futebol Brasileiro",
+                    Description = "Campanhas para jogos do Campeonato Brasileiro",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new() {
+                    Name = "Futebol Europeu",
+                    Description = "Campanhas para ligas europeias principais",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new() {
+                    Name = "Tênis ATP",
+                    Description = "Campanhas para torneios ATP de tênis",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new() {
+                    Name = "Basquete NBA",
+                    Description = "Campanhas para jogos da NBA",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new() {
+                    Name = "Futebol Copa do Mundo",
+                    Description = "Campanhas especiais para Copa do Mundo 2026",
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
+
+            context.Projects.AddRange(projectList);
+            await context.SaveChangesAsync();
+        }
 
         // Get existing data
         var bookmakers = await context.Bookmakers.ToListAsync();
         var projects = await context.Projects.ToListAsync();
 
-        // Seed Campaigns
-        if (!context.Campaigns.Any())
+        // Seed Campaigns - only if no campaigns exist
+        if (!await context.Campaigns.AnyAsync() && bookmakers.Any() && projects.Any())
         {
             var campaigns = new List<Campaign>
             {
@@ -305,8 +263,8 @@ public class DbInitializer
         // Get campaigns
         var existingCampaigns = await context.Campaigns.ToListAsync();
 
-        // Seed Reports
-        if (!context.Reports.Any())
+        // Seed Reports - only if no reports exist
+        if (!await context.Reports.AnyAsync() && existingCampaigns.Any())
         {
             var reports = new List<Report>
             {
@@ -379,8 +337,8 @@ public class DbInitializer
             await context.SaveChangesAsync();
         }
 
-        // Seed User-Project associations
-        if (!context.UserProjects.Any())
+        // Seed User-Project associations - only if no associations exist
+        if (!await context.UserProjects.AnyAsync())
         {
             var userProjects = new List<UserProject>();
 

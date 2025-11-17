@@ -8,6 +8,8 @@ public class Report : BaseEntity
     public int Clicks { get; set; }
     public int Ftds { get; set; }
     public decimal Deposits { get; set; }
+    public decimal Revenue { get; set; }
+    public decimal Cpa { get; set; }
     public CurrencyTypeEnum Currency { get; set; }
 
     // Relationships

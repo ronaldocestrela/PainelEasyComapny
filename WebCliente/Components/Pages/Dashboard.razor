@@ -1,8 +1,11 @@
 @page "/"
 @page "/dashboard"
 @rendermode InteractiveServer
+@using System.Globalization
 @using WebCliente.Services
+@using WebCliente.Models
 @inject IAuthService AuthService
+@inject IReportService ReportService
 @inject NavigationManager Navigation
 
 @if (!isLoading)
@@ -51,7 +54,7 @@
                 <div class="card commission-card">
                     <div class="card-body">
                         <h5 class="card-title text-white">Comissão Total</h5>
-                        <h2 class="commission-value text-white">R$ @ComissaoTotal.ToString("N2")</h2>
+                        <h2 class="commission-value text-white">R$ @ComissaoTotal.ToString("N2", new CultureInfo("pt-BR"))</h2>
                     </div>
                 </div>
             </div>
@@ -147,12 +150,13 @@ else
 }
 
 @code {
-    private decimal ComissaoTotal = 3534.34m;
-    private int Cadastros = 50;
-    private int FTDs = 20;
-    private int CPAQual = 16;
-    private int RVSTotal = 334;
-    private decimal CPATotal = 3200;
+    private List<ReportDto> reports = new();
+    private decimal ComissaoTotal = 0;
+    private int Cadastros = 0;
+    private int FTDs = 0;
+    private int CPAQual = 0;
+    private int RVSTotal = 0;
+    private decimal CPATotal = 0;
     private bool isAuthenticated = false;
     private bool isLoading = true;
 
@@ -173,26 +177,81 @@ else
                 Navigation.NavigateTo("/login", forceLoad: true);
                 return;
             }
+
+            // Carregar dados dos reports
+            await LoadReportsData();
             
             StateHasChanged();
         }
     }
 
-    private List<CampanhaMetrica> CampanhasRVS = new()
+    private async Task LoadReportsData()
     {
-        new CampanhaMetrica { Nome = "Bilhete", Valor = 186 },
-        new CampanhaMetrica { Nome = "Telegram", Valor = 132 },
-        new CampanhaMetrica { Nome = "Cadastro", Valor = 16 },
-        new CampanhaMetrica { Nome = "Instagram", Valor = 0 }
-    };
+        try
+        {
+            // Carregar estatísticas mensais para o funil de conversão
+            var monthlyStats = await ReportService.GetMonthlyStatsAsync();
+            if (monthlyStats != null)
+            {
+                Cadastros = monthlyStats.TotalClicks;
+                FTDs = monthlyStats.TotalFtds;
+                ComissaoTotal = monthlyStats.TotalDeposits;
+                CPAQual = (int)monthlyStats.TotalCpa; // Usando o CPA total como CPA qualificado
+            }
 
-    private List<CampanhaMetrica> CampanhasCPA = new()
+            // Carregar todos os reports para as outras métricas
+            var reportsData = await ReportService.GetAllReportsAsync();
+            if (reportsData != null)
+            {
+                reports = reportsData;
+                CalculateMetrics();
+                UpdateCampanhasMetrics();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar dados dos reports: {ex.Message}");
+        }
+    }
+
+    private void CalculateMetrics()
     {
-        new CampanhaMetrica { Nome = "Bilhete", Valor = 1600 },
-        new CampanhaMetrica { Nome = "Telegram", Valor = 1000 },
-        new CampanhaMetrica { Nome = "Cadastro", Valor = 600 },
-        new CampanhaMetrica { Nome = "Instagram", Valor = 0 }
-    };
+        // As métricas principais (Cadastros, FTDs, ComissaoTotal, CPAQual) vêm do endpoint monthly-stats
+        // Calcular apenas as métricas adicionais necessárias
+        
+        // Calcular RVS (Revenue Value Share) - simplificação baseada nos deposits
+        RVSTotal = (int)(ComissaoTotal / 10); // 10% do total como RVS
+        
+        // Calcular CPA total (já vem do endpoint, mas manter para consistência)
+        CPATotal = ComissaoTotal / Math.Max(FTDs, 1); // Evitar divisão por zero
+    }
+
+    private List<CampanhaMetrica> CampanhasRVS = new();
+    private List<CampanhaMetrica> CampanhasCPA = new();
+
+    private void UpdateCampanhasMetrics()
+    {
+        // Agrupar por campanha e calcular métricas
+        var campanhasGroup = reports
+            .GroupBy(r => r.CampaignName)
+            .Select(g => new {
+                Nome = g.Key,
+                Valor = g.Sum(r => r.Deposits)
+            })
+            .OrderByDescending(c => c.Valor)
+            .ToList();
+
+        CampanhasRVS = campanhasGroup
+            .Select(c => new CampanhaMetrica { Nome = c.Nome, Valor = (int)(c.Valor / 10) })
+            .ToList();
+
+        CampanhasCPA = campanhasGroup
+            .Select(c => new CampanhaMetrica { 
+                Nome = c.Nome, 
+                Valor = c.Valor / Math.Max(reports.Where(r => r.CampaignName == c.Nome).Sum(r => r.Ftds), 1) 
+            })
+            .ToList();
+    }
 
     public class CampanhaMetrica
     {

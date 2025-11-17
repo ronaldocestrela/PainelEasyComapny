@@ -1,0 +1,900 @@
+@page "/admin"
+@rendermode InteractiveServer
+@using WebCliente.Services
+@using WebCliente.Models
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject IUserService UserService
+@inject IBookmakerService BookmakerService
+@inject IReportService ReportService
+@inject ICampaignService CampaignService
+@inject IJSRuntime JSRuntime
+@inject IProjectService ProjectService
+
+<link href="Admin.razor.css" rel="stylesheet" />
+
+@if (!isLoading)
+{
+    @if (isAuthenticated && isAdmin)
+    {
+        <div class="admin-container">
+            <div class="page-header">
+                <h2>Painel Administrativo</h2>
+                <p class="text-muted">Gerencie usuários, casas de apostas e relatórios do sistema</p>
+            </div>
+
+            <div class="admin-tabs">
+                <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users"
+                            type="button" role="tab" aria-controls="users" aria-selected="true">
+                            <i class="bi bi-people"></i> Usuários
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="bookmakers-tab" data-bs-toggle="tab" data-bs-target="#bookmakers"
+                            type="button" role="tab" aria-controls="bookmakers" aria-selected="false">
+                            <i class="bi bi-building"></i> Casas de Apostas
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button"
+                            role="tab" aria-controls="reports" aria-selected="false">
+                            <i class="bi bi-file-earmark-bar-graph"></i> Relatórios
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="campaigns-tab" data-bs-toggle="tab" data-bs-target="#campaigns"
+                            type="button" role="tab" aria-controls="campaigns" aria-selected="false">
+                            <i class="bi bi-bullseye"></i> Campanhas
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="adminTabsContent">
+                    <!-- Aba Usuários -->
+                    <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+                        <div class="tab-header">
+                            <h4>Gerenciamento de Usuários</h4>
+                            <button class="btn btn-primary" @onclick="ShowCreateUserModal">
+                                <i class="bi bi-plus-circle"></i> Novo Usuário
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in users)
+                                    {
+                                        <tr>
+                                            <td>@user.Name</td>
+                                            <td>@user.Email</td>
+                                            <td>
+                                                <span
+                                                    class="badge bg-@(user.Role == "Admin" ? "danger" : "secondary")">@user.Role</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-@(user.IsActive ? "success" : "warning")">
+                                                    @(user.IsActive ? "Ativo" : "Inativo")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-success" @onclick="() => OpenAssignModal(user)" title="Atribuir Projeto">
+                                                        <i class="bi bi-plus-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-primary" @onclick="() => EditUser(user)" title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" @onclick="() => DeleteUser(user)" title="Excluir">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Aba Casas de Apostas -->
+                    <div class="tab-pane fade" id="bookmakers" role="tabpanel" aria-labelledby="bookmakers-tab">
+                        <div class="tab-header">
+                            <h4>Gerenciamento de Casas de Apostas</h4>
+                            <button class="btn btn-primary" @onclick="ShowCreateBookmakerModal">
+                                <i class="bi bi-plus-circle"></i> Nova Casa
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Descrição</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var bookmaker in bookmakers)
+                                    {
+                                        <tr>
+                                            <td>@bookmaker.Name</td>
+                                            <td>@bookmaker.Website</td>
+                                            <td>
+                                                <span class="badge bg-success">Ativa</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary"
+                                                        @onclick="() => EditBookmaker(bookmaker)" title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger"
+                                                        @onclick="() => DeleteBookmaker(bookmaker)" title="Excluir">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginação -->
+                        <nav aria-label="Paginação de campanhas">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => ChangePage(currentPage - 1)">Anterior</button>
+                                </li>
+                                @for (int i = 1; i <= totalPages; i++)
+                                {
+                                    <li class="page-item @(i == currentPage ? "active" : "")">
+                                        <button class="page-link" @onclick="() => ChangePage(i)">@i</button>
+                                    </li>
+                                }
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => ChangePage(currentPage + 1)">Próximo</button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <!-- Aba Relatórios -->
+                    <div class="tab-pane fade" id="reports" role="tabpanel" aria-labelledby="reports-tab">
+                        <div class="tab-header">
+                            <h4>Gerenciamento de Relatórios</h4>
+                            <button class="btn btn-primary" @onclick="ShowCreateReportModal">
+                                <i class="bi bi-plus-circle"></i> Novo Relatório
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Campanha</th>
+                                        <th>Casa de Apostas</th>
+                                        <th>Clicks</th>
+                                        <th>FTD</th>
+                                        <th>Data</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var report in reports)
+                                    {
+                                        <tr>
+                                            <td>@report.CampaignName</td>
+                                            <td>@report.BookmakerName</td>
+                                            <td>@report.Clicks</td>
+                                            <td>@report.Ftds</td>
+                                            <td>@report.ReportDate</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" @onclick="() => EditReport(report)"
+                                                        title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" @onclick="() => DeleteReport(report)"
+                                                        title="Excluir">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginação Relatórios -->
+                        <nav aria-label="Paginação de relatórios">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item @(currentReportsPage <= 1 ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => ChangeReportsPage(currentReportsPage - 1)">Anterior</button>
+                                </li>
+                                @for (int i = Math.Max(1, currentReportsPage - 2); i <= Math.Min(reportsTotalPages, currentReportsPage + 2); i++)
+                                {
+                                    <li class="page-item @(i == currentReportsPage ? "active" : "")">
+                                        <button class="page-link" @onclick="() => ChangeReportsPage(i)">@i</button>
+                                    </li>
+                                }
+                                <li class="page-item @(currentReportsPage >= reportsTotalPages ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => ChangeReportsPage(currentReportsPage + 1)">Próximo</button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+            </div>
+
+            <!-- Aba Campanhas -->
+            <div class="tab-pane fade" id="campaigns" role="tabpanel" aria-labelledby="campaigns-tab">
+                <div class="tab-header">
+                    <h4>Gerenciamento de Campanhas</h4>
+                    <button class="btn btn-primary" @onclick="ShowCreateCampaignModal">
+                        <i class="bi bi-plus-circle"></i> Nova Campanha
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Casa de Apostas</th>
+                                <th>Projeto</th>
+                                <th>Data de Criação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var campaign in campaigns)
+                            {
+                                <tr>
+                                    <td>@campaign.Name</td>
+                                    <td>@campaign.Description</td>
+                                    <td>@(campaign.BookmakerName ?? campaign.BookmakerId)</td>
+                                    <td>@(campaign.ProjectName ?? "N/A")</td>
+                                    <td>@campaign.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" @onclick="() => EditCampaign(campaign)"
+                                                title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" @onclick="() => DeleteCampaign(campaign)"
+                                                title="Excluir">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div>
+        </div>
+    }
+    else if (!isAuthenticated)
+    {
+        <div class="alert alert-warning" role="alert">
+            <h4>Acesso Negado</h4>
+            <p>Você precisa estar autenticado para acessar esta página.</p>
+            <a href="/login" class="btn btn-primary">Ir para Login</a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">
+            <h4>Acesso Restrito</h4>
+            <p>Apenas usuários com permissão de administrador podem acessar esta página.</p>
+            <a href="/" class="btn btn-secondary">Voltar ao Início</a>
+        </div>
+    }
+}
+else
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Carregando...</span>
+    </div>
+}
+
+@code {
+    private bool isAuthenticated = false;
+    private bool isAdmin = false;
+    private bool isLoading = true;
+    private List<UserDto> users = new();
+    private List<BookmakerDto> bookmakers = new();
+    private List<ReportListItem> reports = new();
+    private List<CampaignDto> campaigns = new();
+    private List<ProjectDto> projects = new();
+
+    // Paginação campanhas
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages = 1;
+    private int totalCount = 0;
+
+    // Paginação relatórios
+    private int currentReportsPage = 1;
+    private int reportsPageSize = 10;
+    private int reportsTotalPages = 1;
+    private int reportsTotalCount = 0;
+
+    // Seleções de projeto por usuário
+    private Dictionary<string, string> userProjectSelections = new();
+
+    // Modal para criar campanha
+    private bool showCreateCampaignModal = false;
+    private string newCampaignName = "";
+    private string selectedBookmakerId = "";
+    private string selectedProjectId = "";
+
+    // Modal para criar relatório
+    private bool showCreateReportModal = false;
+    private DateTime reportDate = DateTime.Today;
+    private string selectedCampaignId = "";
+    private int currency = 1;
+    private int clicks = 0;
+    private int ftds = 0;
+    private decimal deposits = 0;
+
+    // Modal para atribuir projeto
+    private bool showAssignModal = false;
+    private UserDto? selectedUser = null;
+    private string selectedProjectForAssign = "";
+
+    private void ShowCreateUserModal()
+    {
+        // Implementar modal para criar usuário
+    }
+
+    private void EditUser(UserDto user)
+    {
+        // Implementar edição de usuário
+    }
+
+    private void DeleteUser(UserDto user)
+    {
+        // Implementar exclusão de usuário
+    }
+
+    private void OpenAssignModal(UserDto user)
+    {
+        selectedUser = user;
+        selectedProjectForAssign = "";
+        showAssignModal = true;
+        StateHasChanged();
+    }
+
+    private async Task AssignProject()
+    {
+        if (selectedUser == null || string.IsNullOrWhiteSpace(selectedProjectForAssign))
+        {
+            return;
+        }
+
+        var success = await ProjectService.AddUserToProjectAsync(selectedUser.Id, selectedProjectForAssign);
+        if (success)
+        {
+            showAssignModal = false;
+            // Talvez recarregar usuários ou mostrar mensagem
+        }
+        else
+        {
+            // Mostrar erro
+        }
+    }
+
+    private void ShowCreateBookmakerModal()
+    {
+        // Implementar modal para criar casa de apostas
+    }
+
+    private void EditBookmaker(BookmakerDto bookmaker)
+    {
+        // Implementar edição de casa de apostas
+    }
+
+    private void DeleteBookmaker(BookmakerDto bookmaker)
+    {
+        // Implementar exclusão de casa de apostas
+    }
+
+    private void ShowCreateReportModal()
+    {
+        reportDate = DateTime.Today;
+        selectedCampaignId = campaigns.FirstOrDefault()?.Id ?? "";
+        currency = 1;
+        clicks = 0;
+        ftds = 0;
+        deposits = 0;
+        showCreateReportModal = true;
+        StateHasChanged();
+    }
+
+    private void EditReport(ReportListItem report)
+    {
+        // Implementar edição de relatório
+    }
+
+    private void DeleteReport(ReportListItem report)
+    {
+        // Implementar exclusão de relatório
+    }
+
+    private void ShowCreateCampaignModal()
+    {
+        newCampaignName = "";
+        selectedBookmakerId = bookmakers.FirstOrDefault()?.Id ?? "";
+        selectedProjectId = projects.FirstOrDefault()?.Id ?? "";
+        showCreateCampaignModal = true;
+        StateHasChanged();
+    }
+
+    private void EditCampaign(CampaignDto campaign)
+    {
+        // Implementar edição de campanha
+    }
+
+    private void DeleteCampaign(CampaignDto campaign)
+    {
+        // Implementar exclusão de campanha
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await CheckAuthentication();
+            isLoading = false;
+            StateHasChanged();
+
+            // Inicializar as abas do Bootstrap após o render
+            await JSRuntime.InvokeVoidAsync("initializeTabs");
+        }
+    }
+
+    private async Task CheckAuthentication()
+    {
+        if (AuthService != null)
+        {
+            await AuthService.InitializeAsync();
+            isAuthenticated = AuthService.IsAuthenticated;
+            Console.WriteLine($"Admin: isAuthenticated = {isAuthenticated}");
+
+            if (isAuthenticated)
+            {
+                // Verificar se o usuário é admin
+                isAdmin = await AuthService.IsUserAdminAsync();
+                Console.WriteLine($"Admin: isAdmin = {isAdmin}");
+
+                if (isAdmin)
+                {
+                    await LoadAllData();
+                }
+                else
+                {
+                    Console.WriteLine("Admin: Usuário não é admin, não carregando dados");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Admin: Usuário não está autenticado");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Admin: AuthService é null");
+        }
+    }
+
+    private async Task LoadAllData()
+    {
+        await LoadUsers();
+        await LoadBookmakers();
+        await LoadReports();
+        await LoadCampaigns();
+        await LoadProjects();
+    }
+
+    private async Task LoadUsers()
+    {
+        try
+        {
+            var usersData = await UserService.GetAllUsersAsync();
+            if (usersData != null)
+            {
+                users = usersData;
+                // Inicializar seleções de projeto
+                userProjectSelections.Clear();
+                foreach (var user in users)
+                {
+                    userProjectSelections[user.Id] = "";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar usuários: {ex.Message}");
+        }
+    }
+
+    private async Task LoadBookmakers()
+    {
+        try
+        {
+            var bookmakersData = await BookmakerService.GetAllBookmakersAsync();
+            if (bookmakersData != null)
+            {
+                bookmakers = bookmakersData;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar casas de apostas: {ex.Message}");
+        }
+    }
+
+    private async Task LoadReports()
+    {
+        try
+        {
+            var reportsData = await ReportService.GetReportsListAsync(currentReportsPage, reportsPageSize);
+            if (reportsData != null)
+            {
+                reports = reportsData.Items;
+                reportsTotalPages = reportsData.TotalPages;
+                reportsTotalCount = reportsData.TotalCount;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar relatórios: {ex.Message}");
+        }
+    }
+
+    private async Task LoadCampaigns()
+    {
+        try
+        {
+            var campaignsData = await CampaignService.GetAllCampaignsAsync(currentPage, pageSize);
+            if (campaignsData != null)
+            {
+                campaigns = campaignsData.Items;
+                totalPages = campaignsData.TotalPages;
+                totalCount = campaignsData.TotalCount;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar campanhas: {ex.Message}");
+        }
+    }
+
+    private async Task LoadProjects()
+    {
+        try
+        {
+            var projectsData = await ProjectService.GetAllProjectsAsync();
+            if (projectsData != null)
+            {
+                projects = projectsData;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar projetos: {ex.Message}");
+        }
+    }
+
+    private async Task ChangePage(int page)
+    {
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        await LoadCampaigns();
+        StateHasChanged();
+    }
+
+    private async Task ChangeReportsPage(int page)
+    {
+        if (page < 1 || page > reportsTotalPages) return;
+        currentReportsPage = page;
+        await LoadReports();
+        StateHasChanged();
+    }
+
+    private async Task CreateCampaign()
+    {
+        if (string.IsNullOrWhiteSpace(newCampaignName) || string.IsNullOrWhiteSpace(selectedBookmakerId))
+        {
+            // Mostrar erro
+            return;
+        }
+
+        var request = new CreateCampaignRequest
+        {
+            Name = newCampaignName,
+            BookmakerId = selectedBookmakerId,
+            ProjectId = string.IsNullOrWhiteSpace(selectedProjectId) ? null : selectedProjectId
+        };
+
+        var success = await CampaignService.CreateCampaignAsync(request);
+        if (success)
+        {
+            showCreateCampaignModal = false;
+            await LoadCampaigns();
+            StateHasChanged();
+        }
+        else
+        {
+            // Mostrar erro
+        }
+    }
+
+    private async Task CreateReport()
+    {
+        if (string.IsNullOrWhiteSpace(selectedCampaignId))
+        {
+            // Mostrar erro
+            return;
+        }
+
+        var request = new CreateReportRequest
+        {
+            ReportDate = reportDate.ToString("yyyy-MM-dd"),
+            CampaignId = selectedCampaignId,
+            Currency = currency,
+            Clicks = clicks,
+            Ftds = ftds,
+            Deposits = deposits
+        };
+
+        var success = await ReportService.CreateReportAsync(request);
+        if (success)
+        {
+            showCreateReportModal = false;
+            await LoadReports();
+            StateHasChanged();
+        }
+        else
+        {
+            // Mostrar erro
+        }
+    }
+}
+
+
+
+<!-- Modal para criar campanha -->
+@if (showCreateCampaignModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Campanha</h5>
+                    <button type="button" class="btn-close" @onclick="() => showCreateCampaignModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="campaignName" class="form-label">Nome da Campanha</label>
+                            <input type="text" class="form-control" id="campaignName" @bind="newCampaignName" placeholder="Digite o nome da campanha">
+                        </div>
+                        <div class="mb-3">
+                            <label for="bookmakerSelect" class="form-label">Casa de Apostas</label>
+                            <select class="form-select" id="bookmakerSelect" @bind="selectedBookmakerId">
+                                @foreach (var bookmaker in bookmakers)
+                                {
+                                    <option value="@bookmaker.Id">@bookmaker.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="projectSelect" class="form-label">Projeto (Opcional)</label>
+                            <select class="form-select" id="projectSelect" @bind="selectedProjectId">
+                                <option value="">Nenhum</option>
+                                @foreach (var project in projects)
+                                {
+                                    <option value="@project.Id">@project.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => showCreateCampaignModal = false">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="CreateCampaign">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal para criar relatório -->
+@if (showCreateReportModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Relatório</h5>
+                    <button type="button" class="btn-close" @onclick="() => showCreateReportModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="reportDate" class="form-label">Data do Relatório</label>
+                            <input type="date" class="form-control" id="reportDate" @bind="reportDate">
+                        </div>
+                        <div class="mb-3">
+                            <label for="campaignSelect" class="form-label">Campanha</label>
+                            <select class="form-select" id="campaignSelect" @bind="selectedCampaignId">
+                                @foreach (var campaign in campaigns)
+                                {
+                                    <option value="@campaign.Id">@campaign.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="currencySelect" class="form-label">Moeda</label>
+                            <select class="form-select" id="currencySelect" @bind="currency">
+                                <option value="1">USD</option>
+                                <option value="2">EUR</option>
+                                <option value="3">BRL</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="clicks" class="form-label">Clicks</label>
+                            <input type="number" class="form-control" id="clicks" @bind="clicks">
+                        </div>
+                        <div class="mb-3">
+                            <label for="ftds" class="form-label">FTDs</label>
+                            <input type="number" class="form-control" id="ftds" @bind="ftds">
+                        </div>
+                        <div class="mb-3">
+                            <label for="deposits" class="form-label">Depósitos</label>
+                            <input type="number" step="0.01" class="form-control" id="deposits" @bind="deposits">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => showCreateReportModal = false">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="CreateReport">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal para atribuir projeto -->
+@if (showAssignModal && selectedUser != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Atribuir Projeto a @selectedUser.Name</h5>
+                    <button type="button" class="btn-close" @onclick="() => showAssignModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="assignProjectSelect" class="form-label">Selecionar Projeto</label>
+                            <select class="form-select" id="assignProjectSelect" @bind="selectedProjectForAssign">
+                                <option value="">Nenhum</option>
+                                @foreach (var project in projects)
+                                {
+                                    <option value="@project.Id">@project.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => showAssignModal = false">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="AssignProject">Atribuir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    window.initializeTabs = function() {
+        var triggerTabList = [].slice.call(document.querySelectorAll('#adminTabs button'))
+        triggerTabList.forEach(function (triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl)
+            triggerEl.addEventListener('click', function (event) {
+                event.preventDefault()
+                tabTrigger.show()
+            })
+        })
+    }
+</script>
+
+<!-- Modal para criar relatório -->
+@if (showCreateReportModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Relatório</h5>
+                    <button type="button" class="btn-close" @onclick="() => showCreateReportModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="reportDate" class="form-label">Data do Relatório</label>
+                            <input type="date" class="form-control" id="reportDate" @bind="reportDate">
+                        </div>
+                        <div class="mb-3">
+                            <label for="campaignSelect" class="form-label">Campanha</label>
+                            <select class="form-select" id="campaignSelect" @bind="selectedCampaignId">
+                                @foreach (var campaign in campaigns)
+                                {
+                                    <option value="@campaign.Id">@campaign.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="currencySelect" class="form-label">Moeda</label>
+                            <select class="form-select" id="currencySelect" @bind="currency">
+                                <option value="1">USD</option>
+                                <option value="2">BRL</option>
+                                <option value="3">EUR</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="clicks" class="form-label">Clicks</label>
+                            <input type="number" class="form-control" id="clicks" @bind="clicks">
+                        </div>
+                        <div class="mb-3">
+                            <label for="ftds" class="form-label">FTDs</label>
+                            <input type="number" class="form-control" id="ftds" @bind="ftds">
+                        </div>
+                        <div class="mb-3">
+                            <label for="deposits" class="form-label">Depósitos</label>
+                            <input type="number" step="0.01" class="form-control" id="deposits" @bind="deposits">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => showCreateReportModal = false">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="CreateReport">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    window.initializeTabs = function() {
+        var triggerTabList = [].slice.call(document.querySelectorAll('#adminTabs button'))
+        triggerTabList.forEach(function (triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl)
+            triggerEl.addEventListener('click', function (event) {
+                event.preventDefault()
+                tabTrigger.show()
+            })
+        })
+    }
+</script>

@@ -1,3 +1,4 @@
+using Application.Core;
 using Application.Reports.Commands;
 using Application.Reports.DTOs;
 using Application.Reports.Queries;
@@ -14,8 +15,20 @@ public class ReportsController : BaseApiController
     }
 
     [HttpGet("list-all")]
-    public async Task<ActionResult<List<ListReportDto>>> ListAllReports()
+    public async Task<ActionResult<PagedResult<ListReportDto>>> ListAllReports([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        return await Mediator.Send(new ListAllReportsQuery.Query());
+        var query = new ListAllReportsQuery.Query
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        return await Mediator.Send(query);
+    }
+
+    [HttpGet("monthly-stats")]
+    public async Task<ActionResult<MonthlyStatsDto>> GetMonthlyStats()
+    {
+        return HandleResult(await Mediator.Send(new GetMonthlyStatsQuery.Query()));
     }
 }

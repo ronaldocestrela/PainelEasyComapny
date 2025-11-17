@@ -16,11 +16,20 @@
             </NavLink>
         </div>
 
-        @* <div class="nav-item px-3">
+        <div class="nav-item px-3">
             <NavLink class="nav-link" href="acompanhamento">
                 <span class="bi bi-clipboard-data-nav-menu" aria-hidden="true"></span> Acompanhamento
             </NavLink>
-        </div> *@
+        </div>
+
+        @if (isAuthenticated && isAdmin)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin">
+                    <span class="bi bi-gear-fill-nav-menu" aria-hidden="true"></span> Administração
+                </NavLink>
+            </div>
+        }
 
         @if (!isAuthenticated)
         {
@@ -67,6 +76,7 @@
     private NavigationManager? Navigation { get; set; }
 
     private bool isAuthenticated = false;
+    private bool isAdmin = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,6 +93,11 @@
             
             // Atualizar o estado baseado no token recuperado
             isAuthenticated = AuthService.IsAuthenticated;
+            
+            if (isAuthenticated)
+            {
+                isAdmin = await AuthService.IsUserAdminAsync();
+            }
             
             @* Console.WriteLine($"NavMenu - AuthService.IsAuthenticated: {AuthService.IsAuthenticated}, Token: {(string.IsNullOrEmpty(AuthService.Token) ? "vazio" : "presente")}"); *@
             
