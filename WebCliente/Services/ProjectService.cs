@@ -3,16 +3,18 @@ using WebCliente.Models;
 
 namespace WebCliente.Services
 {
-    public class ProjectService(IAuthService authService) : IProjectService
+    public class ProjectService(IAuthService authService, IConfiguration configuration) : IProjectService
     {
         private readonly IAuthService _authService = authService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<List<ProjectDto>?> GetAllProjectsAsync()
         {
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.GetAsync("/api/projects/list-all");
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.GetAsync($"{baseUrl}/api/projects/list-all");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -34,7 +36,8 @@ namespace WebCliente.Services
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.GetAsync($"/api/projects/add-user?userId={userId}&projectId={projectId}");
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.GetAsync($"{baseUrl}/api/projects/add-user?userId={userId}&projectId={projectId}");
 
                 if (response.IsSuccessStatusCode)
                 {

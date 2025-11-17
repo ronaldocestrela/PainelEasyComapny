@@ -3,16 +3,18 @@ using WebCliente.Models;
 
 namespace WebCliente.Services
 {
-    public class CampaignService(IAuthService authService) : ICampaignService
+    public class CampaignService(IAuthService authService, IConfiguration configuration) : ICampaignService
     {
         private readonly IAuthService _authService = authService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<CampaignListResponse?> GetAllCampaignsAsync(int pageNumber = 1, int pageSize = 10)
         {
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.GetAsync($"/api/campaigns/list-all?pageNumber={pageNumber}&pageSize={pageSize}");
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.GetAsync($"{baseUrl}/api/campaigns/list-all?pageNumber={pageNumber}&pageSize={pageSize}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -34,7 +36,8 @@ namespace WebCliente.Services
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.PostAsJsonAsync("/api/campaigns/create", request);
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.PostAsJsonAsync($"{baseUrl}/api/campaigns/create", request);
 
                 if (response.IsSuccessStatusCode)
                 {

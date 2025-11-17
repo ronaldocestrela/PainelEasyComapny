@@ -3,16 +3,18 @@ using WebCliente.Models;
 
 namespace WebCliente.Services
 {
-    public class UserService(IAuthService authService) : IUserService
+    public class UserService(IAuthService authService, IConfiguration configuration) : IUserService
     {
         private readonly IAuthService _authService = authService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<List<UserDto>?> GetAllUsersAsync()
         {
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.GetAsync("/api/users/list-all");
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.GetAsync($"{baseUrl}/api/users/list-all");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -34,7 +36,8 @@ namespace WebCliente.Services
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.GetAsync($"/api/users/{userId}");
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.GetAsync($"{baseUrl}/api/users/{userId}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -56,7 +59,8 @@ namespace WebCliente.Services
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.PostAsJsonAsync("/api/users", request);
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.PostAsJsonAsync("{baseUrl}/api/users", request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -78,7 +82,8 @@ namespace WebCliente.Services
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.PutAsJsonAsync($"/api/users/{userId}", request);
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.PutAsJsonAsync($"{baseUrl}/api/users/{userId}", request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -100,7 +105,8 @@ namespace WebCliente.Services
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.DeleteAsync($"/api/users/{userId}");
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.DeleteAsync($"{baseUrl}/api/users/{userId}");
 
                 if (response.IsSuccessStatusCode)
                 {

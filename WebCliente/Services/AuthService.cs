@@ -5,20 +5,13 @@ using WebCliente.Models;
 
 namespace WebCliente.Services
 {
-    public class AuthService : IAuthService
+    public class AuthService(IHttpClientFactory httpClientFactory, IJSRuntime jsRuntime, IConfiguration configuration) : IAuthService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IJSRuntime _jsRuntime;
-        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly IJSRuntime _jsRuntime = jsRuntime;
+        private readonly IConfiguration _configuration = configuration;
         private string? _token;
         private const string TOKEN_KEY = "auth_token";
-
-        public AuthService(IHttpClientFactory httpClientFactory, IJSRuntime jsRuntime, IConfiguration configuration)
-        {
-            _httpClientFactory = httpClientFactory;
-            _jsRuntime = jsRuntime;
-            _configuration = configuration;
-        }
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(_token);
         public string? Token => _token;

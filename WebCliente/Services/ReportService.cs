@@ -3,16 +3,18 @@ using WebCliente.Models;
 
 namespace WebCliente.Services
 {
-    public class ReportService(IAuthService authService) : IReportService
+    public class ReportService(IAuthService authService, IConfiguration configuration) : IReportService
     {
         private readonly IAuthService _authService = authService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<List<ReportDto>?> GetAllReportsAsync()
         {
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.GetAsync("/api/reports/list-all");
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.GetAsync($"{baseUrl}/api/reports/list-all");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -34,7 +36,8 @@ namespace WebCliente.Services
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.PostAsJsonAsync("/api/reports/create", request);
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.PostAsJsonAsync($"{baseUrl}/api/reports/create", request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -56,7 +59,8 @@ namespace WebCliente.Services
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.GetAsync($"/api/reports/list-all?pageNumber={pageNumber}&pageSize={pageSize}");
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.GetAsync($"{baseUrl}/api/reports/list-all?pageNumber={pageNumber}&pageSize={pageSize}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -78,7 +82,8 @@ namespace WebCliente.Services
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
-                var response = await client.GetAsync("/api/reports/monthly-stats");
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.GetAsync($"{baseUrl}/api/reports/monthly-stats");
 
                 if (response.IsSuccessStatusCode)
                 {

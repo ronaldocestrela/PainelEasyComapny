@@ -1,5 +1,3 @@
-using System.Net.Http;
-using System.Net.Http;
 using WebCliente.Models;
 
 namespace WebCliente.Services
