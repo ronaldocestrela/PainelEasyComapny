@@ -3,14 +3,9 @@ using WebCliente.Models;
 
 namespace WebCliente.Services
 {
-    public class CampaignService : ICampaignService
+    public class CampaignService(IAuthService authService) : ICampaignService
     {
-        private readonly IAuthService _authService;
-
-        public CampaignService(IAuthService authService)
-        {
-            _authService = authService;
-        }
+        private readonly IAuthService _authService = authService;
 
         public async Task<CampaignListResponse?> GetAllCampaignsAsync(int pageNumber = 1, int pageSize = 10)
         {

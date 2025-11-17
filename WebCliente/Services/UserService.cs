@@ -3,14 +3,9 @@ using WebCliente.Models;
 
 namespace WebCliente.Services
 {
-    public class UserService : IUserService
+    public class UserService(IAuthService authService) : IUserService
     {
-        private readonly IAuthService _authService;
-
-        public UserService(IAuthService authService)
-        {
-            _authService = authService;
-        }
+        private readonly IAuthService _authService = authService;
 
         public async Task<List<UserDto>?> GetAllUsersAsync()
         {

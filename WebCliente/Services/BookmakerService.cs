@@ -3,14 +3,9 @@ using WebCliente.Models;
 
 namespace WebCliente.Services
 {
-    public class BookmakerService : IBookmakerService
+    public class BookmakerService(IAuthService authService) : IBookmakerService
     {
-        private readonly IAuthService _authService;
-
-        public BookmakerService(IAuthService authService)
-        {
-            _authService = authService;
-        }
+        private readonly IAuthService _authService = authService;
 
         public async Task<List<BookmakerDto>?> GetAllBookmakersAsync()
         {

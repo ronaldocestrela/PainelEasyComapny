@@ -3,14 +3,9 @@ using WebCliente.Models;
 
 namespace WebCliente.Services
 {
-    public class ReportService : IReportService
+    public class ReportService(IAuthService authService) : IReportService
     {
-        private readonly IAuthService _authService;
-
-        public ReportService(IAuthService authService)
-        {
-            _authService = authService;
-        }
+        private readonly IAuthService _authService = authService;
 
         public async Task<List<ReportDto>?> GetAllReportsAsync()
         {

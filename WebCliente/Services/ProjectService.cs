@@ -3,14 +3,9 @@ using WebCliente.Models;
 
 namespace WebCliente.Services
 {
-    public class ProjectService : IProjectService
+    public class ProjectService(IAuthService authService) : IProjectService
     {
-        private readonly IAuthService _authService;
-
-        public ProjectService(IAuthService authService)
-        {
-            _authService = authService;
-        }
+        private readonly IAuthService _authService = authService;
 
         public async Task<List<ProjectDto>?> GetAllProjectsAsync()
         {

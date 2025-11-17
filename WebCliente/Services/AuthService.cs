@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Microsoft.JSInterop;
+using Microsoft.Extensions.Configuration;
 using WebCliente.Models;
 
 namespace WebCliente.Services
@@ -8,14 +9,15 @@ namespace WebCliente.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IJSRuntime _jsRuntime;
+        private readonly IConfiguration _configuration;
         private string? _token;
-        private const string API_BASE_URL = "http://localhost:5150";
         private const string TOKEN_KEY = "auth_token";
 
-        public AuthService(IHttpClientFactory httpClientFactory, IJSRuntime jsRuntime)
+        public AuthService(IHttpClientFactory httpClientFactory, IJSRuntime jsRuntime, IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
             _jsRuntime = jsRuntime;
+            _configuration = configuration;
         }
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(_token);
@@ -36,8 +38,9 @@ namespace WebCliente.Services
         {
             try
             {
-                var client = _httpClientFactory.CreateClient("ApiClient");
-                var response = await client.PostAsJsonAsync($"{API_BASE_URL}/api/login", request);
+                var client = _httpClientFactory.CreateClient();
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.PostAsJsonAsync($"{baseUrl}/api/login", request);
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -112,7 +115,8 @@ namespace WebCliente.Services
             try
             {
                 var client = CreateAuthenticatedClient();
-                var response = await client.GetAsync($"{API_BASE_URL}/api/users/current");
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.GetAsync($"{baseUrl}/api/users/current");
                 
                 if (response.IsSuccessStatusCode)
                 {
