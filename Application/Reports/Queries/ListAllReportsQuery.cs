@@ -73,6 +73,7 @@ public class ListAllReportsQuery
                     Ftds = r.Ftds,
                     Deposits = r.Deposits,
                     Currency = r.Currency,
+                    Registrations = r.Registrations,
                     CampaignId = r.CampaignId,
                     CreatedAt = r.CreatedAt ?? DateTime.UtcNow,
                     CampaignName = r.Campaign != null ? r.Campaign.Name : string.Empty,

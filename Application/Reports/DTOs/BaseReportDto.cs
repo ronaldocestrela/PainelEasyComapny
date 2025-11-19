@@ -10,4 +10,5 @@ public class BaseReportDto
     public decimal Deposits { get; set; }
     public CurrencyTypeEnum Currency { get; set; }
     public string CampaignId { get; set; } = string.Empty;
+    public int Registrations { get; set; }
 }

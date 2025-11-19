@@ -188,6 +188,7 @@
                                         <th>Campanha</th>
                                         <th>Casa de Apostas</th>
                                         <th>Clicks</th>
+                                        <th>Cadastros</th>
                                         <th>FTD</th>
                                         <th>Data</th>
                                         <th>Ações</th>
@@ -200,6 +201,7 @@
                                             <td>@report.CampaignName</td>
                                             <td>@report.BookmakerName</td>
                                             <td>@report.Clicks</td>
+                                            <td>@report.Registrations</td>
                                             <td>@report.Ftds</td>
                                             <td>@report.ReportDate</td>
                                             <td>
@@ -353,6 +355,7 @@ else
     private int currency = 1;
     private int clicks = 0;
     private int ftds = 0;
+    private int registrations = 0;
     private decimal deposits = 0;
 
     // Modal para atribuir projeto
@@ -425,6 +428,7 @@ else
         clicks = 0;
         ftds = 0;
         deposits = 0;
+        registrations = 0;
         showCreateReportModal = true;
         StateHasChanged();
     }
@@ -663,6 +667,7 @@ else
             Currency = currency,
             Clicks = clicks,
             Ftds = ftds,
+            Registrations = registrations,
             Deposits = deposits
         };
 
@@ -766,6 +771,10 @@ else
                             <input type="number" class="form-control" id="clicks" @bind="clicks">
                         </div>
                         <div class="mb-3">
+                            <label for="registrations" class="form-label">Cadastros</label>
+                            <input type="number" class="form-control" id="registrations" @bind="registrations">
+                        </div>
+                        <div class="mb-3">
                             <label for="ftds" class="form-label">FTDs</label>
                             <input type="number" class="form-control" id="ftds" @bind="ftds">
                         </div>
@@ -811,75 +820,6 @@ else
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="() => showAssignModal = false">Cancelar</button>
                     <button type="button" class="btn btn-primary" @onclick="AssignProject">Atribuir</button>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
-<script>
-    window.initializeTabs = function() {
-        var triggerTabList = [].slice.call(document.querySelectorAll('#adminTabs button'))
-        triggerTabList.forEach(function (triggerEl) {
-            var tabTrigger = new bootstrap.Tab(triggerEl)
-            triggerEl.addEventListener('click', function (event) {
-                event.preventDefault()
-                tabTrigger.show()
-            })
-        })
-    }
-</script>
-
-<!-- Modal para criar relatório -->
-@if (showCreateReportModal)
-{
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Novo Relatório</h5>
-                    <button type="button" class="btn-close" @onclick="() => showCreateReportModal = false"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="reportDate" class="form-label">Data do Relatório</label>
-                            <input type="date" class="form-control" id="reportDate" @bind="reportDate">
-                        </div>
-                        <div class="mb-3">
-                            <label for="campaignSelect" class="form-label">Campanha</label>
-                            <select class="form-select" id="campaignSelect" @bind="selectedCampaignId">
-                                @foreach (var campaign in campaigns)
-                                {
-                                    <option value="@campaign.Id">@campaign.Name</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="currencySelect" class="form-label">Moeda</label>
-                            <select class="form-select" id="currencySelect" @bind="currency">
-                                <option value="1">USD</option>
-                                <option value="2">BRL</option>
-                                <option value="3">EUR</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="clicks" class="form-label">Clicks</label>
-                            <input type="number" class="form-control" id="clicks" @bind="clicks">
-                        </div>
-                        <div class="mb-3">
-                            <label for="ftds" class="form-label">FTDs</label>
-                            <input type="number" class="form-control" id="ftds" @bind="ftds">
-                        </div>
-                        <div class="mb-3">
-                            <label for="deposits" class="form-label">Depósitos</label>
-                            <input type="number" step="0.01" class="form-control" id="deposits" @bind="deposits">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="() => showCreateReportModal = false">Cancelar</button>
-                    <button type="button" class="btn btn-primary" @onclick="CreateReport">Salvar</button>
                 </div>
             </div>
         </div>

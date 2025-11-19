@@ -23,6 +23,7 @@ namespace WebCliente.Models
         public string ProjectDescription { get; set; } = string.Empty;
         public DateOnly ReportDate { get; set; }
         public int Clicks { get; set; }
+        public int Registrations { get; set; }
         public int Ftds { get; set; }
         public decimal Deposits { get; set; }
         public int Currency { get; set; }

@@ -10,6 +10,7 @@ public class Report : BaseEntity
     public decimal Deposits { get; set; }
     public decimal Revenue { get; set; }
     public decimal Cpa { get; set; }
+    public int Registrations { get; set; }
     public CurrencyTypeEnum Currency { get; set; }
 
     // Relationships
