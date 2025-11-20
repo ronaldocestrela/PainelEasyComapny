@@ -26,6 +26,8 @@ namespace WebCliente.Models
         public int Registrations { get; set; }
         public int Ftds { get; set; }
         public decimal Deposits { get; set; }
+        public decimal Cpa { get; set; }
+        public decimal Revenue { get; set; }
         public int Currency { get; set; }
         public string CampaignId { get; set; } = string.Empty;
     }

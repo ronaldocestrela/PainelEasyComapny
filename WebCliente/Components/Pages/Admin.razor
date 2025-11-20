@@ -1,5 +1,6 @@
 @page "/admin"
 @rendermode InteractiveServer
+@using System.Globalization
 @using WebCliente.Services
 @using WebCliente.Models
 @inject IAuthService AuthService
@@ -188,8 +189,11 @@
                                         <th>Campanha</th>
                                         <th>Casa de Apostas</th>
                                         <th>Clicks</th>
-                                        <th>Cadastros</th>
                                         <th>FTD</th>
+                                        <th>Cadastros</th>
+                                        <th>Depósitos</th>
+                                        <th>Reavenue</th>
+                                        <th>CPA</th>
                                         <th>Data</th>
                                         <th>Ações</th>
                                     </tr>
@@ -201,9 +205,12 @@
                                             <td>@report.CampaignName</td>
                                             <td>@report.BookmakerName</td>
                                             <td>@report.Clicks</td>
-                                            <td>@report.Registrations</td>
                                             <td>@report.Ftds</td>
-                                            <td>@report.ReportDate</td>
+                                            <td>@report.Registrations</td>
+                                            <td>@report.Deposits.ToString("N2", new CultureInfo("pt-BR"))</td>
+                                            <td>@report.Revenue.ToString("N2", new CultureInfo("pt-BR"))</td>
+                                            <td>@report.Cpa.ToString("N2", new CultureInfo("pt-BR"))</td>
+                                            <td>@report.ReportDate.ToString("dd/MM/yyyy")</td>
                                             <td>
                                                 <div class="btn-group btn-group-sm">
                                                     <button class="btn btn-outline-primary" @onclick="() => EditReport(report)"
@@ -356,6 +363,8 @@ else
     private int clicks = 0;
     private int ftds = 0;
     private int registrations = 0;
+    private decimal revenue = 0;
+    private decimal cpa = 0;
     private decimal deposits = 0;
 
     // Modal para atribuir projeto
@@ -428,7 +437,6 @@ else
         clicks = 0;
         ftds = 0;
         deposits = 0;
-        registrations = 0;
         showCreateReportModal = true;
         StateHasChanged();
     }
@@ -667,8 +675,10 @@ else
             Currency = currency,
             Clicks = clicks,
             Ftds = ftds,
-            Registrations = registrations,
-            Deposits = deposits
+            Deposits = deposits,
+            Cpa = cpa,
+            Revenue = revenue,
+            Registrations = registrations
         };
 
         var success = await ReportService.CreateReportAsync(request);
@@ -745,10 +755,21 @@ else
                 </div>
                 <div class="modal-body">
                     <form>
-                        <div class="mb-3">
-                            <label for="reportDate" class="form-label">Data do Relatório</label>
-                            <input type="date" class="form-control" id="reportDate" @bind="reportDate">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="reportDate" class="form-label">Data do Relatório</label>
+                                <input type="date" class="form-control" id="reportDate" @bind="reportDate">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="currencySelect" class="form-label">Moeda</label>
+                                <select class="form-select" id="currencySelect" @bind="currency">
+                                    <option value="1">USD</option>
+                                    <option value="2">EUR</option>
+                                    <option value="3">BRL</option>
+                                </select>
+                            </div>
                         </div>
+
                         <div class="mb-3">
                             <label for="campaignSelect" class="form-label">Campanha</label>
                             <select class="form-select" id="campaignSelect" @bind="selectedCampaignId">
@@ -758,29 +779,35 @@ else
                                 }
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label for="currencySelect" class="form-label">Moeda</label>
-                            <select class="form-select" id="currencySelect" @bind="currency">
-                                <option value="1">USD</option>
-                                <option value="2">EUR</option>
-                                <option value="3">BRL</option>
-                            </select>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="clicks" class="form-label">Clicks</label>
+                                <input type="number" class="form-control" id="clicks" @bind="clicks">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="registrations" class="form-label">Cadastros</label>
+                                <input type="number" class="form-control" id="registrations" @bind="registrations">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="clicks" class="form-label">Clicks</label>
-                            <input type="number" class="form-control" id="clicks" @bind="clicks">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ftds" class="form-label">FTDs</label>
+                                <input type="number" class="form-control" id="ftds" @bind="ftds">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="deposits" class="form-label">Depósitos</label>
+                                <input type="number" step="0.01" class="form-control" id="deposits" @bind="deposits">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="registrations" class="form-label">Cadastros</label>
-                            <input type="number" class="form-control" id="registrations" @bind="registrations">
-                        </div>
-                        <div class="mb-3">
-                            <label for="ftds" class="form-label">FTDs</label>
-                            <input type="number" class="form-control" id="ftds" @bind="ftds">
-                        </div>
-                        <div class="mb-3">
-                            <label for="deposits" class="form-label">Depósitos</label>
-                            <input type="number" step="0.01" class="form-control" id="deposits" @bind="deposits">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="cpa" class="form-label">CPA</label>
+                                <input type="number" step="0.01" class="form-control" id="cpa" @bind="cpa">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="revenue" class="form-label">Revenue</label>
+                                <input type="number" step="0.01" class="form-control" id="revenue" @bind="revenue">
+                            </div>
                         </div>
                     </form>
                 </div>

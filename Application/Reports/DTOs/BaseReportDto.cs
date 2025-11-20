@@ -11,4 +11,6 @@ public class BaseReportDto
     public CurrencyTypeEnum Currency { get; set; }
     public string CampaignId { get; set; } = string.Empty;
     public int Registrations { get; set; }
+    public decimal Revenue { get; set; }
+    public decimal Cpa { get; set; }
 }

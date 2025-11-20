@@ -7,7 +7,9 @@ namespace WebCliente.Models
         public int Currency { get; set; }
         public int Clicks { get; set; }
         public int Ftds { get; set; }
-        public int Registrations { get; set; }
         public decimal Deposits { get; set; }
+        public decimal Cpa { get; set; }
+        public decimal Revenue { get; set; }
+        public int Registrations { get; set; }
     }
 }
