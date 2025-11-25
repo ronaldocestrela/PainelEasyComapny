@@ -36,7 +36,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
     {
-        builder.WithOrigins("http://localhost:3000", "https://localhost:3000", "http://localhost:5281", "http://161.97.107.57:3000", "https://app.betboard.com.br", "https://betboard.com.br")
+        builder.WithOrigins("http://localhost:3000", "https://localhost:3000", "http://localhost:5298", "http://161.97.107.57:3000", "https://painel.easycompany.com.br")
             .AllowCredentials()
             .AllowAnyMethod()
             .AllowAnyHeader();

@@ -193,7 +193,7 @@ else
             var monthlyStats = await ReportService.GetMonthlyStatsAsync();
             if (monthlyStats != null)
             {
-                Cadastros = monthlyStats.TotalClicks;
+                Cadastros = monthlyStats.TotalCadastros;
                 FTDs = monthlyStats.TotalFtds;
                 ComissaoTotal = monthlyStats.TotalRevenue + monthlyStats.TotalCpa;
                 CPAQual = (int)monthlyStats.TotalCpa; // Usando o CPA total como CPA qualificado

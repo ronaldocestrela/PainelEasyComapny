@@ -9,4 +9,5 @@ public class MonthlyStatsDto
     public int CurrentYear { get; set; }
     public decimal TotalRevenue { get; set; }
     public decimal TotalCpa { get; set; }
+    public int TotalCadastros { get; set; } // Novo campo para Cadastros
 }

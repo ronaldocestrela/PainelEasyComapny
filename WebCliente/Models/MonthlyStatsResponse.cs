@@ -9,5 +9,6 @@ namespace WebCliente.Models
         public int CurrentYear { get; set; }
         public decimal TotalRevenue { get; set; }
         public decimal TotalCpa { get; set; }
+        public int TotalCadastros { get; set; }
     }
 }

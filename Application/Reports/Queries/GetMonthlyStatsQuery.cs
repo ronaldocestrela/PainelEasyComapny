@@ -58,6 +58,7 @@ public class GetMonthlyStatsQuery
                     TotalDeposits = g.Sum(r => r.Deposits),
                     TotalRevenue = g.Sum(r => r.Revenue),
                     TotalCpa = g.Sum(r => r.Cpa),
+                    TotalCadastros = g.Sum(r => r.Registrations),
                     CurrentMonth = currentMonth,
                     CurrentYear = currentYear
                 })
