@@ -15,12 +15,28 @@ public class ListAllReportsQuery
 {
     public class Query : PagedQuery, IRequest<PagedResult<ListReportDto>>
     {
+        public string? BookmakerId { get; set; }
+        public DateOnly? StartDate { get; set; }
+        public DateOnly? EndDate { get; set; }
     }
 
-    public class Handler(AppDbContext appDbContext, IUserAccessor userAccessor, UserManager<ApplicationUser> userManager) : IRequestHandler<Query, PagedResult<ListReportDto>>
+    public class Handler(AppDbContext appDbContext, IUserAccessor userAccessor, UserManager<ApplicationUser> userManager, BahiaTimeZone bahiaTimeZone) : IRequestHandler<Query, PagedResult<ListReportDto>>
     {
         public async Task<PagedResult<ListReportDto>> Handle(Query request, CancellationToken cancellationToken)
         {
+            if (!request.StartDate.HasValue) request.StartDate = bahiaTimeZone.GetFirstDayOfCurrentMonth();
+            if (!request.EndDate.HasValue) request.EndDate = DateOnly.FromDateTime(bahiaTimeZone.Now().Date);
+            if (request.EndDate < request.StartDate)
+            {
+                return new PagedResult<ListReportDto>
+                {
+                    Items = [],
+                    PageNumber = request.PageNumber,
+                    PageSize = request.PageSize,
+                    TotalCount = 0
+                };
+            }
+
             var userId = userAccessor.GetUserId();
             var user = await userManager.FindByIdAsync(userId);
             if (user == null)
@@ -42,11 +58,17 @@ public class ListAllReportsQuery
             Console.WriteLine($"User Roles: {string.Join(", ", roles)}");
 
             IQueryable<Report> query = appDbContext.Reports
+                .Where(r => r.ReportDate >= request.StartDate && r.ReportDate <= request.EndDate)
                 .Include(r => r.Campaign)
                 .ThenInclude(c => c.Bookmaker)
                 .Include(r => r.Campaign)
                 .ThenInclude(c => c.Project)
                 .OrderByDescending(r => r.ReportDate);
+            
+            if (!string.IsNullOrEmpty(request.BookmakerId))
+            {
+                query = query.Where(r => r.Campaign != null && r.Campaign.BookmakerId == request.BookmakerId);
+            }
 
             // If user is not Admin, filter by projects they belong to
             if (!roles.Contains("Admin"))

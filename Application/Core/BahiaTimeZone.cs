@@ -22,4 +22,10 @@ public class BahiaTimeZone
 
         return TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, _bahiaTimeZone);
     }
+
+    public DateOnly GetFirstDayOfCurrentMonth()
+    {
+        var nowInBahia = Now();
+        return new DateOnly(nowInBahia.Year, nowInBahia.Month, 1);
+    }
 }

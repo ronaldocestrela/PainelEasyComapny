@@ -15,12 +15,16 @@ public class ReportsController : BaseApiController
     }
 
     [HttpGet("list-all")]
-    public async Task<ActionResult<PagedResult<ListReportDto>>> ListAllReports([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    public async Task<ActionResult<PagedResult<ListReportDto>>> ListAllReports([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? bookmakerId = null,
+        [FromQuery] DateOnly? startDate = null, [FromQuery] DateOnly? endDate = null)
     {
         var query = new ListAllReportsQuery.Query
         {
             PageNumber = pageNumber,
-            PageSize = pageSize
+            PageSize = pageSize, 
+            BookmakerId = bookmakerId,
+            StartDate = startDate,
+            EndDate = endDate
         };
 
         return await Mediator.Send(query);

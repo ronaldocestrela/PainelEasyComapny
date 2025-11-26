@@ -50,6 +50,12 @@
                             <i class="bi bi-bullseye"></i> Campanhas
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects"
+                            type="button" role="tab" aria-controls="projects" aria-selected="false">
+                            <i class="bi bi-folder"></i> Projetos
+                        </button>
+                    </li>
                 </ul>
 
                 <div class="tab-content" id="adminTabsContent">
@@ -247,56 +253,99 @@
                             </ul>
                         </nav>
                     </div>
-            </div>
+                    <!-- Aba Campanhas -->
+                    <div class="tab-pane fade" id="campaigns" role="tabpanel" aria-labelledby="campaigns-tab">
+                        <div class="tab-header">
+                            <h4>Gerenciamento de Campanhas</h4>
+                            <button class="btn btn-primary" @onclick="ShowCreateCampaignModal">
+                                <i class="bi bi-plus-circle"></i> Nova Campanha
+                            </button>
+                        </div>
 
-            <!-- Aba Campanhas -->
-            <div class="tab-pane fade" id="campaigns" role="tabpanel" aria-labelledby="campaigns-tab">
-                <div class="tab-header">
-                    <h4>Gerenciamento de Campanhas</h4>
-                    <button class="btn btn-primary" @onclick="ShowCreateCampaignModal">
-                        <i class="bi bi-plus-circle"></i> Nova Campanha
-                    </button>
-                </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Descrição</th>
+                                        <th>Casa de Apostas</th>
+                                        <th>Projeto</th>
+                                        <th>Data de Criação</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var campaign in campaigns)
+                                    {
+                                        <tr>
+                                            <td>@campaign.Name</td>
+                                            <td>@campaign.Description</td>
+                                            <td>@(campaign.BookmakerName ?? campaign.BookmakerId)</td>
+                                            <td>@(campaign.ProjectName ?? "N/A")</td>
+                                            <td>@campaign.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" @onclick="() => EditCampaign(campaign)"
+                                                        title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" @onclick="() => DeleteCampaign(campaign)"
+                                                        title="Excluir">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Aba Projetos -->
+                    <div class="tab-pane fade" id="projects" role="tabpanel" aria-labelledby="projects-tab">
+                        <div class="tab-header">
+                            <h4>Gerenciamento de Projetos</h4>
+                            <button class="btn btn-primary" @onclick="ShowCreateProjectModal">
+                                <i class="bi bi-plus-circle"></i> Novo Projeto
+                            </button>
+                        </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Nome</th>
-                                <th>Descrição</th>
-                                <th>Casa de Apostas</th>
-                                <th>Projeto</th>
-                                <th>Data de Criação</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var campaign in campaigns)
-                            {
-                                <tr>
-                                    <td>@campaign.Name</td>
-                                    <td>@campaign.Description</td>
-                                    <td>@(campaign.BookmakerName ?? campaign.BookmakerId)</td>
-                                    <td>@(campaign.ProjectName ?? "N/A")</td>
-                                    <td>@campaign.CreatedAt.ToString("dd/MM/yyyy")</td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" @onclick="() => EditCampaign(campaign)"
-                                                title="Editar">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" @onclick="() => DeleteCampaign(campaign)"
-                                                title="Excluir">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Descrição</th>
+                                        <th>Data de Criação</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var project in projects)
+                                    {
+                                        <tr>
+                                            <td>@project.Name</td>
+                                            <td>@project.Description</td>
+                                            <td>@project.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" @onclick="() => EditProject(project)"
+                                                        title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" @onclick="() => DeleteProject(project)"
+                                                        title="Excluir">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     }
@@ -354,6 +403,11 @@ else
     private string newCampaignName = "";
     private string selectedBookmakerId = "";
     private string selectedProjectId = "";
+
+    // Modal para criar projeto
+    private bool showCreateProjectModal = false;
+    private string newProjectName = "";
+    private string newProjectDescription = "";
 
     // Modal para criar relatório
     private bool showCreateReportModal = false;
@@ -468,6 +522,24 @@ else
     private void DeleteCampaign(CampaignDto campaign)
     {
         // Implementar exclusão de campanha
+    }
+
+    private void ShowCreateProjectModal()
+    {
+        newProjectName = "";
+        newProjectDescription = "";
+        showCreateProjectModal = true;
+        StateHasChanged();
+    }
+
+    private void EditProject(ProjectDto project)
+    {
+        // Implementar edição de projeto
+    }
+
+    private void DeleteProject(ProjectDto project)
+    {
+        // Implementar exclusão de projeto
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -660,6 +732,33 @@ else
         }
     }
 
+    private async Task CreateProject()
+    {
+        if (string.IsNullOrWhiteSpace(newProjectName))
+        {
+            // Mostrar erro
+            return;
+        }
+
+        var request = new CreateProjectRequest
+        {
+            Name = newProjectName,
+            Description = newProjectDescription
+        };
+
+        var success = await ProjectService.CreateProjectAsync(request);
+        if (success)
+        {
+            showCreateProjectModal = false;
+            await LoadProjects();
+            StateHasChanged();
+        }
+        else
+        {
+            // Mostrar erro
+        }
+    }
+
     private async Task CreateReport()
     {
         if (string.IsNullOrWhiteSpace(selectedCampaignId))
@@ -737,6 +836,37 @@ else
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="() => showCreateCampaignModal = false">Cancelar</button>
                     <button type="button" class="btn btn-primary" @onclick="CreateCampaign">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal para criar projeto -->
+@if (showCreateProjectModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Projeto</h5>
+                    <button type="button" class="btn-close" @onclick="() => showCreateProjectModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="projectName" class="form-label">Nome do Projeto</label>
+                            <input type="text" class="form-control" id="projectName" @bind="newProjectName" placeholder="Digite o nome do projeto">
+                        </div>
+                        <div class="mb-3">
+                            <label for="projectDescription" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="projectDescription" @bind="newProjectDescription" rows="3" placeholder="Digite a descrição do projeto"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => showCreateProjectModal = false">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="CreateProject">Salvar</button>
                 </div>
             </div>
         </div>

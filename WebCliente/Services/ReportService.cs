@@ -54,13 +54,22 @@ namespace WebCliente.Services
             }
         }
 
-        public async Task<ReportListResponse?> GetReportsListAsync(int pageNumber, int pageSize)
+        public async Task<ReportListResponse?> GetReportsListAsync(int pageNumber, int pageSize, DateTime? startDate = null, DateTime? endDate = null, string? bookmakerId = null)
         {
             try
             {
                 var client = _authService.CreateAuthenticatedClient();
                 var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
-                var response = await client.GetAsync($"{baseUrl}/api/reports/list-all?pageNumber={pageNumber}&pageSize={pageSize}");
+                
+                var queryParams = $"pageNumber={pageNumber}&pageSize={pageSize}";
+                if (startDate.HasValue)
+                    queryParams += $"&startDate={startDate.Value.ToString("yyyy-MM-dd")}";
+                if (endDate.HasValue)
+                    queryParams += $"&endDate={endDate.Value.ToString("yyyy-MM-dd")}";
+                if (!string.IsNullOrEmpty(bookmakerId))
+                    queryParams += $"&bookmakerId={bookmakerId}";
+                
+                var response = await client.GetAsync($"{baseUrl}/api/reports/list-all?{queryParams}");
 
                 if (response.IsSuccessStatusCode)
                 {

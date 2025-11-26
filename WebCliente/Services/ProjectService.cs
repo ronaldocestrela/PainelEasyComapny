@@ -31,6 +31,29 @@ namespace WebCliente.Services
             }
         }
 
+        public async Task<bool> CreateProjectAsync(CreateProjectRequest request)
+        {
+            try
+            {
+                var client = _authService.CreateAuthenticatedClient();
+                var baseUrl = _configuration.GetValue<string>("ApiSettings:BaseUrl");
+                var response = await client.PostAsJsonAsync($"{baseUrl}/api/projects/create", request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+
+                Console.WriteLine($"Erro ao criar projeto: {response.StatusCode}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao criar projeto: {ex.Message}");
+                return false;
+            }
+        }
+
         public async Task<bool> AddUserToProjectAsync(string userId, string projectId)
         {
             try
