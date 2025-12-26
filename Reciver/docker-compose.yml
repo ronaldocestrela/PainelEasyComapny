@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  reciver:
+    build: .
+    ports:
+      - "8109:8000"
+    volumes:
+      - ./postbacks:/app/postbacks
+    restart: unless-stopped
