@@ -86,7 +86,7 @@ def handle_postback_ana_regiter():
 
 	raw_payload = request.get_data()
 	content_type = request.headers.get("Content-Type", "")
-	record = build_record(raw_payload, content_type)
+	record = build_record(raw_payload, content_type, campaign_name)
 
 	filename = datetime.utcnow().strftime("ana_regiter_postback_%Y%m%dT%H%M%S%fZ.txt")
 	filepath = STORAGE_DIR / filename
@@ -106,7 +106,7 @@ def handle_postback_ana_ftd():
 
 	raw_payload = request.get_data()
 	content_type = request.headers.get("Content-Type", "")
-	record = build_record(raw_payload, content_type)
+	record = build_record(raw_payload, content_type, campaign_name)
 
 	filename = datetime.utcnow().strftime("ana_ftd_postback_%Y%m%dT%H%M%S%fZ.txt")
 	filepath = STORAGE_DIR / filename
@@ -126,7 +126,7 @@ def handle_postback_ana_qftd():
 
 	raw_payload = request.get_data()
 	content_type = request.headers.get("Content-Type", "")
-	record = build_record(raw_payload, content_type)
+	record = build_record(raw_payload, content_type, campaign_name)
 
 	filename = datetime.utcnow().strftime("ana_qftd_postback_%Y%m%dT%H%M%S%fZ.txt")
 	filepath = STORAGE_DIR / filename
