@@ -82,6 +82,7 @@ def handle_postback_ftd():
 @app.route("/ana/postback-regiter", methods=["POST"])
 def handle_postback_ana_regiter():
 	ensure_storage_dir()
+	campaign_name = request.args.get("campaign_name", "unknown")
 
 	raw_payload = request.get_data()
 	content_type = request.headers.get("Content-Type", "")
@@ -95,11 +96,13 @@ def handle_postback_ana_regiter():
 		"message": "postback registrado",
 		"file": str(filepath),
 		"data_type": detect_payload_type(content_type),
+		"campaign_name": campaign_name,
 	})
 
 @app.route("/ana/postback-ftd", methods=["POST"])
 def handle_postback_ana_ftd():
 	ensure_storage_dir()
+	campaign_name = request.args.get("campaign_name", "unknown")
 
 	raw_payload = request.get_data()
 	content_type = request.headers.get("Content-Type", "")
@@ -113,11 +116,13 @@ def handle_postback_ana_ftd():
 		"message": "postback registrado",
 		"file": str(filepath),
 		"data_type": detect_payload_type(content_type),
+		"campaign_name": campaign_name,
 	})
 
 @app.route("/ana/postback-qftd", methods=["POST"])
 def handle_postback_ana_qftd():
 	ensure_storage_dir()
+	campaign_name = request.args.get("campaign_name", "unknown")
 
 	raw_payload = request.get_data()
 	content_type = request.headers.get("Content-Type", "")
@@ -131,6 +136,7 @@ def handle_postback_ana_qftd():
 		"message": "postback registrado",
 		"file": str(filepath),
 		"data_type": detect_payload_type(content_type),
+		"campaign_name": campaign_name,
 	})
 
 
