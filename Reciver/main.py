@@ -79,6 +79,60 @@ def handle_postback_ftd():
 		"data_type": detect_payload_type(content_type),
 	})
 
+@app.route("/ana/postback-regiter", methods=["POST"])
+def handle_postback_ana_regiter():
+	ensure_storage_dir()
+
+	raw_payload = request.get_data()
+	content_type = request.headers.get("Content-Type", "")
+	record = build_record(raw_payload, content_type)
+
+	filename = datetime.utcnow().strftime("ana_regiter_postback_%Y%m%dT%H%M%S%fZ.txt")
+	filepath = STORAGE_DIR / filename
+	filepath.write_text(record, encoding="utf-8")
+
+	return jsonify({
+		"message": "postback registrado",
+		"file": str(filepath),
+		"data_type": detect_payload_type(content_type),
+	})
+
+@app.route("/ana/postback-ftd", methods=["POST"])
+def handle_postback_ana_ftd():
+	ensure_storage_dir()
+
+	raw_payload = request.get_data()
+	content_type = request.headers.get("Content-Type", "")
+	record = build_record(raw_payload, content_type)
+
+	filename = datetime.utcnow().strftime("ana_ftd_postback_%Y%m%dT%H%M%S%fZ.txt")
+	filepath = STORAGE_DIR / filename
+	filepath.write_text(record, encoding="utf-8")
+
+	return jsonify({
+		"message": "postback registrado",
+		"file": str(filepath),
+		"data_type": detect_payload_type(content_type),
+	})
+
+@app.route("/ana/postback-qftd", methods=["POST"])
+def handle_postback_ana_qftd():
+	ensure_storage_dir()
+
+	raw_payload = request.get_data()
+	content_type = request.headers.get("Content-Type", "")
+	record = build_record(raw_payload, content_type)
+
+	filename = datetime.utcnow().strftime("ana_qftd_postback_%Y%m%dT%H%M%S%fZ.txt")
+	filepath = STORAGE_DIR / filename
+	filepath.write_text(record, encoding="utf-8")
+
+	return jsonify({
+		"message": "postback registrado",
+		"file": str(filepath),
+		"data_type": detect_payload_type(content_type),
+	})
+
 
 @app.route("/health", methods=["GET"])
 def health():
