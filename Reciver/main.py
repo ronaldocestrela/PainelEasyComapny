@@ -28,7 +28,7 @@ def detect_payload_type(content_type: str) -> str:
 	return lowered
 
 
-def build_record(payload_bytes: bytes, content_type: str) -> str:
+def build_record(payload_bytes: bytes, content_type: str, campaign_name: str = "unknown") -> str:
 	"""Compose the record to be stored in the .txt file."""
 	timestamp = datetime.utcnow().isoformat() + "Z"
 	payload_str = payload_bytes.decode("utf-8", errors="replace")
@@ -38,6 +38,7 @@ def build_record(payload_bytes: bytes, content_type: str) -> str:
 		f"timestamp: {timestamp}\n"
 		f"content_type: {content_type or 'não informado'}\n"
 		f"data_type: {data_type}\n"
+		f"campaign_name: {campaign_name}\n"
 		"payload:\n"
 		f"{payload_str}\n"
 	)
