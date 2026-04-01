@@ -44,7 +44,7 @@ def build_record(payload_bytes: bytes, content_type: str, campaign_name: str = "
 	)
 
 
-@app.route("/postback-registro", methods=["POST"])
+@app.route("/postback-registro", methods=["GET", "POST"])
 def handle_postback_registro():
 	ensure_storage_dir()
 
@@ -62,7 +62,7 @@ def handle_postback_registro():
 		"data_type": detect_payload_type(content_type),
 	})
 
-@app.route("/postback-ftd", methods=["POST"])
+@app.route("/postback-ftd", methods=["GET", "POST"])
 def handle_postback_ftd():
 	ensure_storage_dir()
 
@@ -80,7 +80,7 @@ def handle_postback_ftd():
 		"data_type": detect_payload_type(content_type),
 	})
 
-@app.route("/ana/postback-regiter", methods=["POST"])
+@app.route("/ana/postback-regiter", methods=["GET", "POST"])
 def handle_postback_ana_regiter():
 	ensure_storage_dir()
 	campaign_name = request.args.get("campaign_name", "unknown")
@@ -100,7 +100,7 @@ def handle_postback_ana_regiter():
 		"campaign_name": campaign_name,
 	})
 
-@app.route("/ana/postback-ftd", methods=["POST"])
+@app.route("/ana/postback-ftd", methods=["GET", "POST"])
 def handle_postback_ana_ftd():
 	ensure_storage_dir()
 	campaign_name = request.args.get("campaign_name", "unknown")
@@ -120,7 +120,7 @@ def handle_postback_ana_ftd():
 		"campaign_name": campaign_name,
 	})
 
-@app.route("/ana/postback-qftd", methods=["POST"])
+@app.route("/ana/postback-qftd", methods=["GET", "POST"])
 def handle_postback_ana_qftd():
 	ensure_storage_dir()
 	campaign_name = request.args.get("campaign_name", "unknown")
@@ -141,7 +141,7 @@ def handle_postback_ana_qftd():
 	})
 
 
-@app.route("/health", methods=["GET"])
+@app.route("/health", methods=["GET", "POST"])
 def health():
 	return jsonify({"status": "ok"})
 
